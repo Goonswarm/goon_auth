@@ -1,0 +1,15 @@
+<p>Congratulations, <%= @name %>.</p>
+<p>You qualify for access to our authentication system. Please set a password and email address here.</p>
+<p>The password you set will be used for other services, such as the forums or Mumble.</p>
+
+<%= form_for @conn, "/register", [as: :registration], fn f -> %>
+  <div class="form-group">
+    <%= label(f, :email, "Email") %>
+    <%= email_input(f, :email, class: "form-control") %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :password, "Password") %>
+    <%= password_input(f, :password, class: "form-control") %>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+<% end %>

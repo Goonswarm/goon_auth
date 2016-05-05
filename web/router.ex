@@ -17,6 +17,10 @@ defmodule GoonAuth.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/register", RegistrationController, :register
+    get "/register/start", RegistrationController, :start
+    get "/register/form", RegistrationController, :registration_form
+    get "/register/crest-catch", RegistrationController, :catch_token
   end
 
   # Other scopes may use custom stacks.

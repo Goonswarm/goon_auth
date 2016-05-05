@@ -6,6 +6,9 @@ defmodule GoonAuth do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
+    # Set up ETS table used for registrations
+    :ets.new(:registrations, [:named_table, :public, read_concurrency: true])
+
     children = [
       # Start the endpoint when the application starts
       supervisor(GoonAuth.Endpoint, []),
