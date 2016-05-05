@@ -17,7 +17,8 @@ defmodule GoonAuth.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {GoonAuth, []},
-     applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext]]
+     applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
+                    :httpoison, :oauth2]]
   end
 
   # Specifies which paths to compile per environment.
@@ -32,6 +33,9 @@ defmodule GoonAuth.Mixfile do
      {:phoenix_html, "~> 2.4"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.9"},
-     {:cowboy, "~> 1.0"}]
+     {:cowboy, "~> 1.0"},
+     {:httpoison, "~> 0.8.0"},
+     {:oauth2, "~> 0.5"},
+     {:uuid, "~> 1.1.3"}]
   end
 end
