@@ -49,5 +49,4 @@ defmodule GoonAuth do
       _ -> :ok
     end
   end
-
 end

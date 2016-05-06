@@ -19,4 +19,11 @@ config :goon_auth, GoonAuth.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Load secrets from static path
 config :goon_auth, secrets_path: "/etc/goon_auth/secrets.json"
+
+# LDAP server is discoverable through Kubernetes DNS
+config :goon_auth, :ldap,
+  port: 389,
+  host: '127.0.0.1',
+  admin_dn: 'goon-ldap.default.svc.cluster.local'

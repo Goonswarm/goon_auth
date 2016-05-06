@@ -3,12 +3,12 @@ defmodule GoonAuth.EVE.Auth do
   use OAuth2.Strategy
 
   def client do
-    config = Application.get_all_env(:goon_auth)
+    config = Application.get_env(:goon_auth, :crest)
     OAuth2.Client.new([
       strategy: __MODULE__,
-      client_id: config[:crest_client],
-      client_secret: config[:crest_secret],
-      redirect_uri: config[:crest_callback],
+      client_id: config[:client],
+      client_secret: config[:secret],
+      redirect_uri: config[:callback],
       site: "https://crest-tq.eveonline.com",
       authorize_url: "https://login.eveonline.com/oauth/authorize",
       token_url: "https://login.eveonline.com/oauth/token",

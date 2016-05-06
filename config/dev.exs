@@ -24,8 +24,6 @@ config :goon_auth, GoonAuth.Endpoint,
     ]
   ]
 
-config :goon_auth, secrets_path: "config/secrets.json"
-
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
@@ -33,3 +31,12 @@ config :logger, :console, format: "[$level] $message\n"
 # Do not configure such in production as keeping
 # and calculating stacktraces is usually expensive.
 config :phoenix, :stacktrace_depth, 20
+
+# Set secrets path relative to working directory while developing
+config :goon_auth, secrets_path: "config/secrets.json"
+
+# LDAP configuration should use the local host while testing
+config :goon_auth, :ldap,
+  port: 44887,
+  host: '127.0.0.1',
+  admin_dn: 'cn=admin,dc=tendollarbond,dc=com'
