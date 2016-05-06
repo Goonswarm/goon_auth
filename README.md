@@ -1,18 +1,35 @@
 # GoonAuth
 
-To start your Phoenix app:
+Authentication services for GoonSwarm.
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phoenix.server`
+This is a simple LDAP-backed registration and user management service that lets
+members of [OHGOD] register an account in an LDAP server.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+This account can then be used for access to forums and other external services.
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+## Tech overview
 
-## Learn more
+GoonAuth is an Elixir application using the Phoenix framework. It is currently
+built as a Docker image and intended to be deployed in a Kubernetes cluster.
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: http://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+An image for an LDAP server with the correct schema is included in the `slapd`
+folder.
+
+## Building for production
+
+Run `docker build` with appropriate flags in the repository root and the `slapd`
+folder.
+
+## Building for development
+
+Build the `slapd` Docker image, run it and expose port 389 locally.
+
+Install Elixir and run these commands:
+
+```
+mix do deps.get, deps.compile
+iex -S mix phoenix.server
+```
+
+This will fetch and compile dependencies and start up the server, giving you an
+interactive console.
