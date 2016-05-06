@@ -13,8 +13,10 @@ use Mix.Config
 # which you typically run after static files are built.
 config :goon_auth, GoonAuth.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/manifest.json"
+  url: [port: 80]
+
+# Do start Phoenix
+config :phoenix, :serve_endpoints, true
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -25,5 +27,5 @@ config :goon_auth, secrets_path: "/etc/goon_auth/secrets.json"
 # LDAP server is discoverable through Kubernetes DNS
 config :goon_auth, :ldap,
   port: 389,
-  host: '127.0.0.1',
-  admin_dn: 'goon-ldap.default.svc.cluster.local'
+  host: 'goon-ldap',
+  admin_dn: 'cn=admin,dc=tendollarbond,dc=com'
