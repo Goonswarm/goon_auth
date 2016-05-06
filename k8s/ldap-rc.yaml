@@ -19,6 +19,7 @@ spec:
     spec:
       containers:
         - image: eu.gcr.io/composite-watch-759/goon-ldap
+          imagePullPolicy: Always
           name: goon-ldap
           ports:
             - containerPort: 389

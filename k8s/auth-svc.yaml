@@ -4,7 +4,7 @@ metadata:
   name: goon-auth
   labels:
     app: goon-auth
-    version: v2
+    spec: v2
 spec:
   selector:
     app: goon-auth

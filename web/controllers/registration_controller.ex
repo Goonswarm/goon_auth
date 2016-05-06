@@ -92,7 +92,7 @@ defmodule GoonAuth.RegistrationController do
     # Drop registration session and proceed to front page
     conn
     |> clear_session
-    |> put_flash(:info, "Welcome to GoonSwarm! You can now proceed to login.")
+    |> put_flash(:info, "Welcome to GoonSwarm! You can now log in to our services.")
     |> redirect(to: "/")
   end
 

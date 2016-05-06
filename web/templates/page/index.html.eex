@@ -5,13 +5,21 @@
 
 <div class="row marketing">
   <div class="col-lg-6">
-    <h4>Services</h4>
+    <h4>Auth actions</h4>
     <ul>
       <li>
         <a href="/register">Register</a>
       </li>
       <li>
         <a href="/reset-password">Reset your password</a>
+      </li>
+    </ul>
+  </div>
+  <div class="col-lg-6">
+    <h4>Services</h4>
+    <ul>
+      <li>
+        <a href="https://forums.tendollarbond.com">Forums</a>
       </li>
     </ul>
   </div>
