@@ -24,6 +24,8 @@ config :goon_auth, GoonAuth.Endpoint,
     ]
   ]
 
+config :goon_auth, secrets_path: "config/secrets.json"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
