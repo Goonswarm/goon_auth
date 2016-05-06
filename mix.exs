@@ -18,7 +18,7 @@ defmodule GoonAuth.Mixfile do
   def application do
     [mod: {GoonAuth, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :httpoison, :oauth2, :uuid]]
+                    :httpoison, :oauth2, :uuid, :eldap]]
   end
 
   # Specifies which paths to compile per environment.
