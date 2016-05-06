@@ -4,14 +4,13 @@ defmodule GoonAuth.EVE.CREST do
   @doc "Retrieve ID of a character from the authentication token"
   def get_character_id(token) do
     decoded = get!(token, "/decode/")
-    IO.inspect(decoded, pretty: true)
     parse_id(decoded["character"]["href"])
   end
 
   @doc "Retrieve a character, including nested information such as the corporation"
   def get_character(token, character_id) do
     character = get!(token, "/characters/#{character_id}/")
-    corporation_id = character["corporation"]["id_str"]
+    corporation_id = character["corporation"]["name"]
     character_id = character["id_str"]
     # corporation = get_corporation(token, corporation_id)
     account_id = parse_id(character["accounts"]["href"])
@@ -40,6 +39,7 @@ defmodule GoonAuth.EVE.CREST do
   def get!(token, url) do
     import Poison
     response = OAuth2.AccessToken.get!(token, url)
+    IO.inspect(response, pretty: true)
     response.body |> decode!
   end
 end

@@ -1,11 +1,11 @@
 <div class="jumbotron">
-  <h2><%= gettext "Welcome to %{name}", name: "Phoenix!" %></h2>
-  <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
+  <h2>GoonSwarm Authentication Services</h2>
+  <p class="lead">OHGOD it's those guys!</p>
 </div>
 
 <div class="row marketing">
   <div class="col-lg-6">
-    <h4>Resources</h4>
+    <h4></h4>
     <ul>
       <li>
         <a href="http://phoenixframework.org/docs/overview">Guides</a>
