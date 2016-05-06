@@ -5,20 +5,27 @@ metadata:
   name: goon-auth
   labels:
     app: goon-auth
-    spec: v1
+    spec: v2
 spec:
   replicas: 1
   selector:
     app: goon-auth
-    spec: v1
+    spec: v2
   template:
     metadata:
       labels:
         app: goon-auth
-        spec: v1
+        spec: v2
     spec:
       containers:
         - image: eu.gcr.io/composite-watch-759/goon-auth
           name: goon-auth
           ports:
             - containerPort: 4000
+          volumeMounts:
+            - name: goon-auth-secret
+              mountPath: /etc/goon_auth
+      volumes:
+        - name: goon-auth-secret
+          secret:
+            secretName: goon-auth-secret
