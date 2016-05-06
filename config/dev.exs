@@ -37,6 +37,6 @@ config :goon_auth, secrets_path: "config/secrets.json"
 
 # LDAP configuration should use the local host while testing
 config :goon_auth, :ldap,
-  port: 44887,
+  port: 33445,
   host: '127.0.0.1',
   admin_dn: 'cn=admin,dc=tendollarbond,dc=com'
