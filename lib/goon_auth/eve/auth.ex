@@ -8,7 +8,7 @@ defmodule GoonAuth.EVE.Auth do
       strategy: __MODULE__,
       client_id: config[:crest_client],
       client_secret: config[:crest_secret],
-      redirect_uri: "http://localhost:4000/register/crest-catch",
+      redirect_uri: config[:crest_callback],
       site: "https://crest-tq.eveonline.com",
       authorize_url: "https://login.eveonline.com/oauth/authorize",
       token_url: "https://login.eveonline.com/oauth/token",
