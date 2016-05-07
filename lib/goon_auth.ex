@@ -10,6 +10,9 @@ defmodule GoonAuth do
     # Load secrets from a file
     load_secrets
 
+    # Set up secret key
+    set_secret_key
+
     # Set up ETS table used for registrations
     :ets.new(:registrations, [:named_table, :public, read_concurrency: true])
 
@@ -48,5 +51,13 @@ defmodule GoonAuth do
         end)
       _ -> :ok
     end
+  end
+
+  @doc "Set the Phoenix session secret key from secret configuration"
+  def set_secret_key do
+    endpoint_config = Application.get_env(:goon_auth, GoonAuth.Endpoint)
+    secret_key = Application.get_env(:goon_auth, :phoenix_secret_key)
+    new_config = Keyword.put(endpoint_config, :secret_key_base, secret_key)
+    Application.put_env(:goon_auth, GoonAuth.Endpoint, new_config)
   end
 end
