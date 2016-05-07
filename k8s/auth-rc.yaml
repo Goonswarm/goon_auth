@@ -18,7 +18,7 @@ spec:
         spec: v2
     spec:
       containers:
-        - image: eu.gcr.io/composite-watch-759/goon-auth
+        - image: gcr.io/goonswarm-1303/goon-auth
           imagePullPolicy: Always
           name: goon-auth
           ports:

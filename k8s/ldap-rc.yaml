@@ -18,8 +18,16 @@ spec:
         spec: v1
     spec:
       containers:
-        - image: eu.gcr.io/composite-watch-759/goon-ldap
+        - image: gcr.io/goonswarm-1303/slapd
           imagePullPolicy: Always
           name: goon-ldap
           ports:
             - containerPort: 389
+          volumeMounts:
+            - name: slapd-storage
+              mountPath: /var/lib/openldap/openldap-data
+      volumes:
+        - name: slapd-storage
+          gcePersistentDisk:
+            pdName: slapd-storage
+            fsType: ext4
