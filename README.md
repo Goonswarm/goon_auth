@@ -12,17 +12,17 @@ This account can then be used for access to forums and other external services.
 GoonAuth is an Elixir application using the Phoenix framework. It is currently
 built as a Docker image and intended to be deployed in a Kubernetes cluster.
 
-An image for an LDAP server with the correct schema is included in the `slapd`
-folder.
+An image for an LDAP server with the correct schema is located in the
+[infrastructure][] repository.
 
 ## Building for production
 
-Run `docker build` with appropriate flags in the repository root and the `slapd`
-folder.
+Run `docker build` with appropriate flags in the repository root.
 
 ## Building for development
 
-Build the `slapd` Docker image, run it and expose port 389 locally.
+Follow instructions from the aforementioned `slapd` image README to set up an
+LDAP test server locally.
 
 Install Elixir and run these commands:
 
@@ -33,3 +33,5 @@ iex -S mix phoenix.server
 
 This will fetch and compile dependencies and start up the server, giving you an
 interactive console.
+
+[infrastructure]: https://github.com/goonswarm/infrastructure
