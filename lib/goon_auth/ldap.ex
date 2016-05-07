@@ -6,36 +6,16 @@ defmodule GoonAuth.LDAP do
   @userdn "ou=users,#{@basedn}"
   @corpdn "ou=corporations,#{@basedn}"
 
-  @doc "Retrieve a user from LDAP"
-  @spec get_user(binary()) :: {:ok, term} | :not_found
-  def get_user(username) do
-    {:ok, conn} = connect_admin
-    search = [
-      filter: :eldap.equalityMatch('cn', String.to_char_list(username)),
-      base: String.to_char_list(@userdn),
-      scope: :eldap.singleLevel
-    ]
-    {:ok, {:eldap_search_result, result, _ref}} = :eldap.search(conn, search)
-    :eldap.close(conn)
-
-    case result do
-      [] -> :not_found
-      [{:eldap_entry, _dn, user}] -> {:ok, :maps.from_list(user)}
-    end
-  end
-
   @doc "Prepare a user structure for insertion into LDAP"
   def prepare_user(usermap) do
     # Convert attributes into Erlang strings
     name  = usermap[:name]
     cn    = name                    |> String.to_char_list
-    dn    = dn(name, :user)         |> String.to_char_list
+    dn    = dn(name, :user)
     mail  = usermap[:email]         |> String.to_char_list
     token = usermap[:refresh_token] |> String.to_char_list
 
-    corp  = usermap[:corporation]
-          |> dn(:corp)
-          |> String.to_char_list
+    corp  = usermap[:corporation] |> dn(:corp)
 
     # Create a simple name that bad external services can use
     simple_name = name |> String.downcase |> String.replace(" ", "_")
@@ -68,6 +48,27 @@ defmodule GoonAuth.LDAP do
     :eldap.close(conn)
   end
 
+  @doc "Retrieves a user or corporation from LDAP"
+  @spec retrieve(binary, :user | :corp) :: {:ok, term} | :not_found
+  def retrieve(name, type) do
+    {:ok, conn} = connect_admin
+    search = [
+      filter: :eldap.present('objectClass'),
+      base: dn(name, type),
+      scope: :eldap.baseObject
+    ]
+
+    result = :eldap.search(conn, search)
+    :eldap.close(conn)
+
+    case result do
+      {:error, :noSuchObject} -> :not_found
+      {:ok, {:eldap_search_result, object_result, _ref}} ->
+        [{:eldap_entry, _dn, object}] = object_result
+        {:ok, :maps.from_list(object)}
+    end
+  end
+
   @doc "Connects to LDAP and returns socket"
   def connect do
     conf = Application.get_env(:goon_auth, :ldap)
@@ -85,7 +86,7 @@ defmodule GoonAuth.LDAP do
 
   @doc "Connects to LDAP and binds with user credentials"
   def connect_user(user, password) do
-    dn   = dn(user, :user) |> String.to_char_list
+    dn   = dn(user, :user)
     pass = String.to_char_list(password)
 
     {:ok, conn} = connect
@@ -98,7 +99,7 @@ defmodule GoonAuth.LDAP do
 
   @doc "Changes a user's LDAP password"
   def change_password(user, current_pw, new_pw) do
-    dn = dn(user, :user) |> String.to_char_list
+    dn = dn(user, :user)
     new_pw = String.to_char_list(new_pw)
 
     case connect_user(user, current_pw) do
@@ -111,9 +112,9 @@ defmodule GoonAuth.LDAP do
 
   @doc "Create distinguished names from common names"
   def dn(user, :user) do
-    "cn=#{user},#{@userdn}"
+    "cn=#{user},#{@userdn}" |> String.to_char_list
   end
   def dn(corp, :corp) do
-    "cn=#{corp},#{@corpdn}"
+    "o=#{corp},#{@corpdn}" |> String.to_char_list
   end
 end
