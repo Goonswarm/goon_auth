@@ -20,7 +20,7 @@ defmodule GoonAuth do
       # Start the endpoint when the application starts
       supervisor(GoonAuth.Endpoint, []),
       # Here you could define other workers and supervisors as children
-      # worker(GoonAuth.Worker, [arg1, arg2, arg3]),
+      worker(GoonAuth.Cleaner, [60])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
