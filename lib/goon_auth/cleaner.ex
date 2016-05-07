@@ -26,7 +26,7 @@ defmodule GoonAuth.Cleaner do
   def handle_info(:clean, state) do
     clean_registrations
     :erlang.send_after(state[:interval], self(), :clean)
-    {:ok, state}
+    {:noreply, state}
   end
 
   @doc "Cleans up the registrations ETS table"
