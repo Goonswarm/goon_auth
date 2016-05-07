@@ -29,7 +29,7 @@ defmodule GoonAuth.RegistrationController do
   end
 
   @doc "Show the registration form requesting password and email address"
-  def registration_form(conn, session) do
+  def registration_form(conn, _params) do
     case get_session(conn, :name) do
       nil -> redirect(conn, to: "/register/start")
       name ->
@@ -77,7 +77,7 @@ defmodule GoonAuth.RegistrationController do
     }
 
     # Check for double-registration (TODO: Fail nicely)
-    case LDAP.get_user(user[:name]) do
+    case LDAP.retrieve(user[:name], :user) do
       :not_found   -> process_registration(conn, user)
       {:ok, _user} -> already_registered(conn)
     end
@@ -109,13 +109,21 @@ defmodule GoonAuth.RegistrationController do
   In order to let the user proceed with registering, we need to temporarily
   store the token and give the client a session.
 
-  Registration sessions will expire after five minutes.
+  After user eligibility is verified, passes on to other verification functions.
   """
   def catch_token(conn, params) do
     token = Auth.get_token!(code: params["code"])
     character_id = CREST.get_character_id(token)
     character = CREST.get_character(token, character_id)
 
+    case eligible?(character[:corporation]) do
+      :eligible -> begin_registration(conn, token, character)
+      :not_eligible -> reject_registration(conn, character[:name])
+    end
+  end
+
+  @doc "If a user is eligible, create a registration session and proceed"
+  def begin_registration(conn, token, character) do
     # Store registration session
     reg_id = UUID.uuid4()
     now = :os.system_time(:seconds)
@@ -127,7 +135,26 @@ defmodule GoonAuth.RegistrationController do
     redirect(conn, to: "/register/form")
   end
 
+  @doc "Sends away users that aren't eligible for signup"
+  def reject_registration(conn, name) do
+    # I want :frogout: here, but flashes are currently escaped.
+    #getout = "<img src=\"/images/getout.gif\" alt=\":getout\">"
+    message = "#{name} is not a member of [OHGOD]. :getout:"
+
+    conn
+    |> clear_session
+    |> put_flash(:error, message)
+    |> redirect(to: "/")
+  end
+
   # Private helper functions
+  @doc "Verifies that a corp exists in LDAP and is eligible for auth"
+  def eligible?(corporation) do
+    case LDAP.retrieve(corporation, :corp) do
+      :not_found -> :not_eligible
+      {:ok, _corp} -> :eligible
+    end
+  end
 
   # Retrieve the registration session and data or return :no_session
   def get_registration_session(conn) do
