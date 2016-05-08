@@ -47,15 +47,18 @@ defmodule GoonAuth.RegistrationController do
       {:ok, {_id, token, character, time}} ->
         # Perform registration validations
         reg = params["registration"]
-        fields_present = Enum.all?([reg["email"], reg["password"]])
-        long_password = String.length(reg["password"]) >= 8
+        form_ok = Enum.all?([reg["email"], reg["password"], reg["confirm"]])
+        long_pass = String.length(reg["password"]) >= 8
+        pass_match = reg["password"] == reg["confirm"]
 
         # Check that the session is still valid
         now = :os.system_time(:seconds)
-        still_valid = (now - time) <= 500
+        session_valid = (now - time) <= 500
+
+        good_to_go? = form_ok and long_pass and pass_match and session_valid
 
         # Send the user on if everything is fine
-        if fields_present and long_password and still_valid do
+        if good_to_go? do
           prepare_registration(conn, reg, token, character)
         else
           conn

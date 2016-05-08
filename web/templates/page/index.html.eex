@@ -33,7 +33,8 @@
         <a href="https://forums.k8s.tendollarbond.com">Forums</a>
       </li>
       <li>
-        <em>Mumble</em>
+        <h5>Mumble</h5>
+        <p>After registering, connect to Mumble at <strong>mumble.k8s.tendollarbond.com</strong> with port <strong>64738</strong></p>
       </li>
       <li>
         <em>Jabber</em>
