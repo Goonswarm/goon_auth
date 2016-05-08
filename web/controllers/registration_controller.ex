@@ -45,19 +45,22 @@ defmodule GoonAuth.RegistrationController do
     case get_registration_session(conn) do
       :no_session -> redirect(conn, to: "/register/start")
       {:ok, {_id, token, character, time}} ->
-        # Check that the fields are present
+        # Perform registration validations
         reg = params["registration"]
-        required = Map.has_key?(reg, "email") and Map.has_key?(reg, "password")
+        fields_present = Enum.all?([reg["email"], reg["password"]])
+        long_password = String.length(reg["password"]) >= 8
 
         # Check that the session is still valid
         now = :os.system_time(:seconds)
-        valid = (now - time) <= 500
+        still_valid = (now - time) <= 500
 
         # Send the user on if everything is fine
-        if required and valid do
+        if fields_present and long_password and still_valid do
           prepare_registration(conn, reg, token, character)
         else
-          register(conn, params)
+          conn
+          |> put_flash(:error, "Please try to fill the form in correctly!")
+          |> register(params)
         end
     end
   end

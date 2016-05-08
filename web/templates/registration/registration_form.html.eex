@@ -1,6 +1,8 @@
 <p>Congratulations, <%= @name %>.</p>
 <p>You qualify for access to our authentication system. Please set a password and email address here.</p>
-<p>The password you set will be used for other services, such as the forums or Mumble.</p>
+<p>The password you set will be used for other services, such as the forums or Mumble.
+  It needs to have at least <strong>8 characters</strong>.
+</p>
 
 <%= form_for @conn, "/register", [as: :registration], fn f -> %>
   <div class="form-group">
