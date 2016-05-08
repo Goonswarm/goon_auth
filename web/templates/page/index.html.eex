@@ -1,25 +1,42 @@
 <div class="jumbotron">
-  <h2>GoonSwarm Authentication Services</h2>
-  <p class="lead">OHGOD it's those guys!</p>
+  <h2>GoonSwarm Services</h2>
+  <p class="lead">OHGOD, it's those guys!</p>
+  <p>
+    <a class="btn btn-lg btn-success" href="/register" role="button">Register account</a>
+    <a class="btn btn-lg btn-warning" href="/change-password" role="button">Change password</a>
+  </p>
 </div>
 
 <div class="row marketing">
   <div class="col-lg-6">
-    <h4>Auth actions</h4>
-    <ul>
-      <li>
-        <a href="/register">Register</a>
-      </li>
-      <li>
-        <a href="/change-password">Change your password</a>
-      </li>
-    </ul>
+    <h4>:words:</h4>
+    <p>This page lets you register an internal service account if your EVE character is a
+      member of the Ten Dollar Bond.</p>
+    <p>Note that the character you register with will be your username and internal identity,
+      we will probably not help you change it later because :effort:</p>
+    <p>You do not need to register new accounts for alts.</p>
   </div>
   <div class="col-lg-6">
-    <h4>Services</h4>
+    <h4>Joining Ten Dollar Bond</h4>
+    <p>This page is only intended for people who have already joined our space guild.</p>
+    <p>We recruit only from the most exclusive community on the internet. Please visit our
+      <a href="https://forums.somethingawful.com/showthread.php?threadid=3773367">
+        recruitment thread</a> for more information.
+    </p>
+  </div>
+</div>
+<div class="row marketing">
+  <div class="col-lg-6">
+        <h4>Services</h4>
     <ul>
       <li>
-        <a href="https://forums.tendollarbond.com">Forums</a>
+        <a href="https://forums.k8s.tendollarbond.com">Forums</a>
+      </li>
+      <li>
+        <em>Mumble</em>
+      </li>
+      <li>
+        <em>Jabber</em>
       </li>
     </ul>
   </div>
