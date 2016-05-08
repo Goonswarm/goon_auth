@@ -53,7 +53,7 @@ defmodule GoonAuth.LDAP do
   def retrieve(name, type) do
     {:ok, conn} = connect_admin
     search = [
-      filter: :eldap.present('objectClass'),
+      filter: :eldap.equalityMatch('objectClass', object_class(type)),
       base: dn(name, type),
       scope: :eldap.baseObject
     ]
@@ -63,6 +63,7 @@ defmodule GoonAuth.LDAP do
 
     case result do
       {:error, :noSuchObject} -> :not_found
+      {:ok, {:eldap_search_result, [], _ref}} -> :not_found
       {:ok, {:eldap_search_result, object_result, _ref}} ->
         [{:eldap_entry, _dn, object}] = object_result
         {:ok, :maps.from_list(object)}
@@ -116,5 +117,17 @@ defmodule GoonAuth.LDAP do
   end
   def dn(corp, :corp) do
     "o=#{corp},#{@corpdn}" |> String.to_char_list
+  end
+
+  @doc """
+  Returns the object class to filter by for users / corporations. The reason for
+  filtering based on this is that we do not want the auth system to be able to,
+  for example, modify service user passwords.
+  """
+  def object_class(type) do
+    case type do
+      :user -> 'goonPilot'
+      :corp -> 'organization'
+    end
   end
 end
