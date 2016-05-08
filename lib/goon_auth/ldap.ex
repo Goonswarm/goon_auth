@@ -15,10 +15,9 @@ defmodule GoonAuth.LDAP do
     mail  = usermap[:email]         |> String.to_char_list
     token = usermap[:refresh_token] |> String.to_char_list
 
-    corp  = usermap[:corporation] |> dn(:corp)
+    simple_name = sanitize_name(name)
 
-    # Create a simple name that bad external services can use
-    simple_name = name |> String.downcase |> String.replace(" ", "_")
+    corp  = usermap[:corporation] |> dn(:corp)
 
     objectClasses = ['organizationalPerson', 'goonPilot']
 
@@ -129,5 +128,13 @@ defmodule GoonAuth.LDAP do
       :user -> 'goonPilot'
       :corp -> 'organization'
     end
+  end
+
+  @doc "Sanitize usernames for use in bad external services"
+  def sanitize_name(name) do
+    name
+    |> String.downcase
+    |> String.replace(" ", "_")
+    |> String.replace("'", "")
   end
 end
