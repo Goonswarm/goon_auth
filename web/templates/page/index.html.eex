@@ -11,7 +11,7 @@
         <a href="/register">Register</a>
       </li>
       <li>
-        <a href="/reset-password">Reset your password</a>
+        <a href="/change-password">Change your password</a>
       </li>
     </ul>
   </div>

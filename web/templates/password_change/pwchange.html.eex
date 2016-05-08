@@ -1,0 +1,23 @@
+<p>You can change your authentication service password on this page. This will affect all internal services, such as the forums or Mumble.</p>
+
+<p>Your password needs to be at least <strong>8 characters</strong> long.</p>
+
+<%= form_for @conn, "/change-password", [as: :password], fn f -> %>
+  <div class="form-group">
+    <%= label(f, :name, "Character name") %>
+    <%= text_input(f, :name, class: "form-control", required: true) %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :current, "Current password") %>
+    <%= password_input(f, :current, class: "form-control", required: true) %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :password, "New password") %>
+    <%= password_input(f, :password, class: "form-control", required: true) %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :password_confirm, "Confirm new password") %>
+    <%= password_input(f, :password_confirm, class: "form-control", required: true) %>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+<% end %>

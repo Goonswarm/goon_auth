@@ -24,6 +24,10 @@ defmodule GoonAuth.Router do
     get "/register/form", RegistrationController, :registration_form
     get "/register/crest-catch", RegistrationController, :catch_token
     post "/register", RegistrationController, :validate_registration
+
+    # Password change routes
+    get "/change-password", PasswordChangeController, :password_change_form
+    post "/change-password", PasswordChangeController, :change_password_handler
   end
 
   # Other scopes may use custom stacks.
