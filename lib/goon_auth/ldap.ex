@@ -1,5 +1,17 @@
 defmodule GoonAuth.LDAP do
-  @moduledoc "Module for all LDAP related functions"
+  @moduledoc """
+  Module for all LDAP related functions.
+
+  Connections to LDAP can be established using either `connect_admin/0`, which
+  will establish a connection and bind with the account specified in the Auth
+  configuration, or `connect_user/2` which takes a username and password.
+
+  Two convenience functions exist for handling LDAP structures:
+
+  * `dn(name :: binary, :user | :corp)` - Creating full DNs from common names
+  * `object_class(:user | :corp)` - Look up the object classes we expect for
+    actual EVE objects.
+  """
 
   # Static LDAP values
   @basedn "dc=tendollarbond,dc=com"
@@ -51,6 +63,8 @@ defmodule GoonAuth.LDAP do
   @spec retrieve(binary, :user | :corp) :: {:ok, term} | :not_found
   def retrieve(name, type) do
     {:ok, conn} = connect_admin
+    # Searching for the base object on a distinguished name gives us
+    # exactly that object, i.e. the user or corporation.
     search = [
       filter: :eldap.equalityMatch('objectClass', object_class(type)),
       base: dn(name, type),
@@ -65,6 +79,8 @@ defmodule GoonAuth.LDAP do
       {:ok, {:eldap_search_result, [], _ref}} -> :not_found
       {:ok, {:eldap_search_result, object_result, _ref}} ->
         [{:eldap_entry, _dn, object}] = object_result
+        # eldap will return a Keymap which we can turn into a slightly nicer
+        # structure using maps, however the values will still be Erlang strings.
         {:ok, :maps.from_list(object)}
     end
   end
@@ -97,7 +113,12 @@ defmodule GoonAuth.LDAP do
     end
   end
 
-  @doc "Changes a user's LDAP password"
+  @doc """
+  Changes a user's LDAP password.
+
+  An LDAP connection is established using the user's own current password. LDAP
+  needs to be configured to allow people to change their own passwords.
+  """
   def change_password(user, current_pw, new_pw) do
     dn = dn(user, :user)
     new_pw = String.to_char_list(new_pw)

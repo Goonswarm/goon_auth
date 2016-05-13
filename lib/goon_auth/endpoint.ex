@@ -1,4 +1,6 @@
 defmodule GoonAuth.Endpoint do
+  # This module was scaffolded by mix.
+
   use Phoenix.Endpoint, otp_app: :goon_auth
 
   socket "/socket", GoonAuth.UserSocket

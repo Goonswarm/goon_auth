@@ -1,5 +1,10 @@
 defmodule GoonAuth.EVE.CREST do
-  @moduledoc "Convenience wrappers for using the CREST API"
+  @moduledoc """
+  Convenience wrappers for using the CREST API.
+
+  The functions in this module are intended to retrieve data from CREST and
+  combine/enrich it with other information we need.
+  """
 
   @doc "Retrieve ID of a character from the authentication token"
   def get_character_id(token) do
@@ -30,6 +35,7 @@ defmodule GoonAuth.EVE.CREST do
   # end
 
   # Helper function to extract IDs from CREST URLs
+  # Example: /corporations/1234567/ -> 1234567
   defp parse_id(url) do
     Regex.run(~r/([0-9]+)\//, url, capture: :all_but_first) |> hd
   end
