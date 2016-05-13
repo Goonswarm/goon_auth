@@ -1,4 +1,5 @@
 # GoonAuth
+[![Build status](https://travis-ci.org/Goonswarm/goon_auth.svg?branch=master)](https://travis-ci.org/Goonswarm/goon_auth)
 
 Authentication services for GoonSwarm.
 
