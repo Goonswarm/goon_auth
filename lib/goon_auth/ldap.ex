@@ -16,7 +16,8 @@ defmodule GoonAuth.LDAP do
   # Static LDAP values
   @basedn "dc=tendollarbond,dc=com"
   @userdn "ou=users,#{@basedn}"
-  @corpdn "ou=corporations,#{@basedn}"
+  @groupdn "ou=groups,#{@basedn}"
+  @corpdn "ou=corporations,#{@groupdn}"
 
   @doc "Prepare a user structure for insertion into LDAP"
   def prepare_user(usermap) do
@@ -29,8 +30,6 @@ defmodule GoonAuth.LDAP do
 
     simple_name = sanitize_name(name)
 
-    corp  = usermap[:corporation] |> dn(:corp)
-
     objectClasses = ['organizationalPerson', 'goonPilot']
 
     entry = [
@@ -39,13 +38,20 @@ defmodule GoonAuth.LDAP do
       {'sn', [simple_name]}, # Yes, I know that sn stands for surname. :getout:
       {'mail', [mail]},
       {'refreshToken', [token]},
-      {'corporation', [corp]}
+      {'pilotActive', ['TRUE']},
     ]
 
     {:ok, dn, entry}
   end
 
-  @doc "Adds a user to LDAP and sets its password"
+  @doc """
+  Adds a user to LDAP.
+
+  This function will take the combined output of CREST and the registration
+  form and add the user to LDAP.
+
+  It will set the users corporation as a group.
+  """
   def register_user(usermap) do
     {:ok, dn, entry} = prepare_user(usermap)
     {:ok, conn} = connect_admin
@@ -54,6 +60,11 @@ defmodule GoonAuth.LDAP do
     # Set password
     pass = usermap[:password] |> String.to_char_list
     :ok = :eldap.modify_password(conn, dn, pass)
+
+    # Add to corporation
+    corp_dn = usermap[:corporation] |> dn(:corp)
+    corp_entry = :eldap.mod_add('member', [dn])
+    :eldap.modify(conn, corp_dn, [corp_entry])
 
     # Done!
     :eldap.close(conn)
@@ -136,7 +147,7 @@ defmodule GoonAuth.LDAP do
     "cn=#{user},#{@userdn}" |> String.to_char_list
   end
   def dn(corp, :corp) do
-    "o=#{corp},#{@corpdn}" |> String.to_char_list
+    "cn=#{corp},#{@corpdn}" |> String.to_char_list
   end
 
   @doc """
@@ -147,7 +158,7 @@ defmodule GoonAuth.LDAP do
   def object_class(type) do
     case type do
       :user -> 'goonPilot'
-      :corp -> 'organization'
+      :corp -> 'groupOfNames'
     end
   end
 
