@@ -36,6 +36,9 @@ defmodule GoonAuth.PasswordChangeController do
     end
   end
 
+  @doc """
+  Perform a user password change and show the result status in a flash.
+  """
   def change_password(conn, name, current, password) do
     Logger.info("Attempting to change password for #{name}")
     case LDAP.connect_user(name, current) do
@@ -49,12 +52,14 @@ defmodule GoonAuth.PasswordChangeController do
     end
   end
 
+  @doc "Helper function for putting error-flashs"
   def error(conn, message) do
     conn
     |> put_flash(:error, message)
     |> redirect(to: "/change-password")
   end
 
+  @doc "Helper function for putting a success flash and redirecting the user"
   def success(conn, name) do
     Logger.info("Changed password for #{name}")
     IO.inspect conn

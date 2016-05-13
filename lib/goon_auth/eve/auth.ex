@@ -1,5 +1,11 @@
 defmodule GoonAuth.EVE.Auth do
-  @moduledoc "OAuth authentication strategy for EVE SSO"
+  @moduledoc """
+  OAuth authentication strategy for EVE SSO.
+
+  This module is a straightforward implementation of a strategy for the OAuth2
+  library. Please see the library documentation and EVE's SSO documentation if
+  you need more information.
+  """
   use OAuth2.Strategy
 
   def client do

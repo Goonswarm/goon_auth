@@ -1,4 +1,5 @@
 defmodule GoonAuth do
+  @moduledoc "Entrypoint module for the GoonAuth application"
   use Application
   require Logger
 
@@ -19,7 +20,7 @@ defmodule GoonAuth do
     children = [
       # Start the endpoint when the application starts
       supervisor(GoonAuth.Endpoint, []),
-      # Here you could define other workers and supervisors as children
+      # Start the "cleaner" process that removes old registrations
       worker(GoonAuth.Cleaner, [60])
     ]
 
@@ -29,8 +30,10 @@ defmodule GoonAuth do
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
+  @doc """
+  Tell Phoenix to update the endpoint configuration
+  whenever the application is updated.
+  """
   def config_change(changed, _new, removed) do
     GoonAuth.Endpoint.config_change(changed, removed)
     :ok
@@ -38,7 +41,8 @@ defmodule GoonAuth do
 
   @doc """
   Load secrets configuration from an external file and add it to the application
-  configuration. The external file should be in JSON format.
+  configuration. The external file should be in JSON format. An example is
+  provided in the application README.
   """
   def load_secrets do
     path = Application.get_env(:goon_auth, :secrets_path, "")
@@ -53,7 +57,7 @@ defmodule GoonAuth do
     end
   end
 
-  @doc "Set the Phoenix session secret key from secret configuration"
+  @doc "Sets the Phoenix session secret key from secret configuration"
   def set_secret_key do
     endpoint_config = Application.get_env(:goon_auth, GoonAuth.Endpoint)
     secret_key = Application.get_env(:goon_auth, :phoenix_secret_key)

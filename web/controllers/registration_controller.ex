@@ -82,7 +82,7 @@ defmodule GoonAuth.RegistrationController do
       password: reg["password"]
     }
 
-    # Check for double-registration (TODO: Fail nicely)
+    # Check for double-registration
     case LDAP.retrieve(user[:name], :user) do
       :not_found   -> process_registration(conn, user)
       {:ok, _user} -> already_registered(conn)
