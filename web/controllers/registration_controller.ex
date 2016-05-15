@@ -41,8 +41,8 @@ defmodule GoonAuth.RegistrationController do
     character = CREST.get_character(token, character_id)
 
     case eligible?(character) do
-      {:ok, :eligible} -> begin_registration(conn, token, character)
-      {:error, err}    -> reject_registration(conn, err, character[:name])
+      {:ok, status} -> begin_registration(conn, status, token, character)
+      {:error, err} -> reject_registration(conn, err, character[:name])
     end
   end
 
@@ -55,8 +55,8 @@ defmodule GoonAuth.RegistrationController do
     # Corp doesn't exist -> ineligible
     case {corp, user} do
       {{:ok, _corp}, :not_found} -> {:ok, :eligible}
+      {:not_found, _user}        -> {:ok, :can_apply}
       {_corp, {:ok, _user}}      -> {:error, :already_registered}
-      {:not_found, _user}        -> {:error, :ineligible}
     end
   end
 
@@ -69,6 +69,14 @@ defmodule GoonAuth.RegistrationController do
     end
   end
 
+  @doc "Show the application form for non-members"
+  def application_form(conn, _params) do
+    case get_session(conn, :name) do
+      nil -> redirect(conn, to: "/register/start")
+      name ->
+        render(conn, "application_form.html", name: name)
+    end
+  end
 
   @doc """
   Receives a filled in registration form, validates the registration session
@@ -110,6 +118,8 @@ defmodule GoonAuth.RegistrationController do
     user = %{
       name: character[:name],
       corporation: character[:corporation],
+      group: character[:group],
+      pilotActive: character[:pilotActive],
       refresh_token: token.refresh_token,
       email: reg["email"],
       password: reg["password"]
@@ -132,16 +142,28 @@ defmodule GoonAuth.RegistrationController do
   end
 
   @doc "If a user is eligible, create a registration session and proceed"
-  def begin_registration(conn, token, character) do
+  def begin_registration(conn, status, token, character) do
     # Store registration session
     reg_id = UUID.uuid4()
     now = :os.system_time(:seconds)
-    :ets.insert(:registrations, {reg_id, token, character, now})
     conn = put_session(conn, :reg_id, reg_id)
     conn = put_session(conn, :name, character[:name])
 
-    # Send on to registration form
-    redirect(conn, to: "/register/form")
+    case status do
+      :eligible  ->
+        character = Map.put(character, :pilotActive, 'TRUE')
+        :ets.insert(:registrations, {reg_id, token, character, now})
+        redirect(conn, to: "/register/form")
+      :can_apply ->
+        # If the user is not in TDB, remove their current corporation and set the
+        # applicants group.
+        character = character
+        |> Map.drop([:corporation])
+        |> Map.put(:group, "applicants")
+        |> Map.put(:pilotActive, 'FALSE')
+        :ets.insert(:registrations, {reg_id, token, character, now})
+        redirect(conn, to: "/register/apply")
+    end
   end
 
   @doc """

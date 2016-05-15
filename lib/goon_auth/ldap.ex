@@ -38,7 +38,7 @@ defmodule GoonAuth.LDAP do
       {'sn', [simple_name]}, # Yes, I know that sn stands for surname. :getout:
       {'mail', [mail]},
       {'refreshToken', [token]},
-      {'pilotActive', ['TRUE']},
+      {'pilotActive', [usermap[:pilotActive]]},
     ]
 
     {:ok, dn, entry}
@@ -53,18 +53,26 @@ defmodule GoonAuth.LDAP do
   It will set the users corporation as a group.
   """
   def register_user(usermap) do
+    # Prepare data
     {:ok, dn, entry} = prepare_user(usermap)
+    pass = usermap[:password] |> String.to_char_list
+
+    # Begin LDAP operations by adding user and setting password
     {:ok, conn} = connect_admin
     :ok = :eldap.add(conn, dn, entry)
-
-    # Set password
-    pass = usermap[:password] |> String.to_char_list
     :ok = :eldap.modify_password(conn, dn, pass)
 
-    # Add to corporation
-    corp_dn = usermap[:corporation] |> dn(:corp)
-    corp_entry = :eldap.mod_add('member', [dn])
-    :eldap.modify(conn, corp_dn, [corp_entry])
+    # Add to corporation if one is set
+    if usermap[:corporation] do
+      corp_dn = usermap[:corporation] |> dn(:corp)
+      add_member(conn, corp_dn, dn)
+    end
+
+    # Add to other group if set.
+    if usermap[:group] do
+      group_dn = usermap[:group] |> dn(:group)
+      add_member(conn, group_dn, dn)
+    end
 
     # Done!
     :eldap.close(conn)
@@ -99,7 +107,7 @@ defmodule GoonAuth.LDAP do
   @doc "Connects to LDAP and returns socket"
   def connect do
     conf = Application.get_env(:goon_auth, :ldap)
-    {:ok, conn} = :eldap.open([conf[:host]], [port: conf[:port]])
+    :eldap.open([conf[:host]], [port: conf[:port]])
   end
 
   @doc "Connects to LDAP and binds with administrator credentials"
@@ -142,12 +150,24 @@ defmodule GoonAuth.LDAP do
     end
   end
 
+  @doc """
+  Adds a user to an LDAP group or corporation by adding a new member entry with
+  the users distinguished name.
+  """
+  def add_member(conn, group_dn, user_dn) do
+    entry = :eldap.mod_add('member', [user_dn])
+    :ok = :eldap.modify(conn, group_dn, [entry])
+  end
+
   @doc "Create distinguished names from common names"
   def dn(user, :user) do
     "cn=#{user},#{@userdn}" |> String.to_char_list
   end
   def dn(corp, :corp) do
     "cn=#{corp},#{@corpdn}" |> String.to_char_list
+  end
+  def dn(group, :group) do
+    "cn=#{group},#{@groupdn}" |> String.to_char_list
   end
 
   @doc """

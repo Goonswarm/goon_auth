@@ -1,0 +1,21 @@
+<p>Hello, <%= @name %>.</p>
+<p>You are not currently a member of GoonSwarm, but you can proceed with the registration if you want to become one.</p>
+<p>Setting a password will allow you to access our forums and post your application in the request forum. Do not revoke the API access you just granted to us or your application will be discarded.</p>
+<p>After logging in to the forums it may take a couple of minutes before you can see the request subforum!</p>
+<p> Your password needs to have at least <strong>8 characters</strong>.</p>
+
+<%= form_for @conn, "/register", [as: :registration], fn f -> %>
+  <div class="form-group">
+    <%= label(f, :email, "Email") %>
+    <%= email_input(f, :email, class: "form-control", required: true) %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :password, "Password") %>
+    <%= password_input(f, :password, class: "form-control", required: true) %>
+  </div>
+  <div class="form-group">
+    <%= label(f, :confirm, "Confirm password") %>
+    <%= password_input(f, :confirm, class: "form-control", required: true) %>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+<% end %>
