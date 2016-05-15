@@ -54,9 +54,9 @@ defmodule GoonAuth.RegistrationController do
     # User exists -> double registration
     # Corp doesn't exist -> ineligible
     case {corp, user} do
+      {_corp, {:ok, _user}}      -> {:error, :already_registered}
       {{:ok, _corp}, :not_found} -> {:ok, :eligible}
       {:not_found, _user}        -> {:ok, :can_apply}
-      {_corp, {:ok, _user}}      -> {:error, :already_registered}
     end
   end
 
