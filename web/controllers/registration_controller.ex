@@ -28,6 +28,38 @@ defmodule GoonAuth.RegistrationController do
     render(conn, "landing.html", oauth_url: oauth_url)
   end
 
+  @doc """
+  Catches CREST OAuth token after a successful login.
+  In order to let the user proceed with registering, we need to temporarily
+  store the token and give the client a session.
+
+  After user eligibility is verified, passes on to other verification functions.
+  """
+  def catch_token(conn, params) do
+    token = Auth.get_token!(code: params["code"])
+    character_id = CREST.get_character_id(token)
+    character = CREST.get_character(token, character_id)
+
+    case eligible?(character) do
+      {:ok, :eligible} -> begin_registration(conn, token, character)
+      {:error, err}    -> reject_registration(conn, err, character[:name])
+    end
+  end
+
+  @doc "Verifies that a corp exists in LDAP and is eligible for auth"
+  def eligible?(char) do
+    corp = LDAP.retrieve(char[:corporation], :corp)
+    user = LDAP.retrieve(char[:name], :user)
+    # Corp exists, user doesn't -> eligible
+    # User exists -> double registration
+    # Corp doesn't exist -> ineligible
+    case {corp, user} do
+      {{:ok, _corp}, :not_found} -> {:ok, :eligible}
+      {_corp, {:ok, _user}}      -> {:error, :already_registered}
+      {:not_found, _user}        -> {:error, :ineligible}
+    end
+  end
+
   @doc "Show the registration form requesting password and email address"
   def registration_form(conn, _params) do
     case get_session(conn, :name) do
@@ -36,6 +68,7 @@ defmodule GoonAuth.RegistrationController do
         render(conn, "registration_form.html", name: name)
     end
   end
+
 
   @doc """
   Receives a filled in registration form, validates the registration session
@@ -82,11 +115,7 @@ defmodule GoonAuth.RegistrationController do
       password: reg["password"]
     }
 
-    # Check for double-registration
-    case LDAP.retrieve(user[:name], :user) do
-      :not_found   -> process_registration(conn, user)
-      {:ok, _user} -> already_registered(conn)
-    end
+    process_registration(conn, user)
   end
 
   @doc "Finally write to LDAP and conclude registration"
@@ -102,32 +131,6 @@ defmodule GoonAuth.RegistrationController do
     |> redirect(to: "/")
   end
 
-  @doc "Politely inform user that he has already registered"
-  def already_registered(conn) do
-    conn
-    |> clear_session
-    |> put_flash(:error, "Hey dummy, you've already registered.")
-    |> redirect(to: "/")
-  end
-
-  @doc """
-  Catches CREST OAuth token after a successful login.
-  In order to let the user proceed with registering, we need to temporarily
-  store the token and give the client a session.
-
-  After user eligibility is verified, passes on to other verification functions.
-  """
-  def catch_token(conn, params) do
-    token = Auth.get_token!(code: params["code"])
-    character_id = CREST.get_character_id(token)
-    character = CREST.get_character(token, character_id)
-
-    case eligible?(character[:corporation]) do
-      :eligible -> begin_registration(conn, token, character)
-      :not_eligible -> reject_registration(conn, character[:name])
-    end
-  end
-
   @doc "If a user is eligible, create a registration session and proceed"
   def begin_registration(conn, token, character) do
     # Store registration session
@@ -141,11 +144,18 @@ defmodule GoonAuth.RegistrationController do
     redirect(conn, to: "/register/form")
   end
 
-  @doc "Sends away users that aren't eligible for signup"
-  def reject_registration(conn, name) do
+  @doc """
+  Sends away users that aren't eligible for signup or that have already
+  registered an account.
+  """
+  def reject_registration(conn, err, name) do
     # I want :frogout: here, but flashes are currently escaped.
     #getout = "<img src=\"/images/getout.gif\" alt=\":getout\">"
-    message = "#{name} is not a member of [OHGOD]. :getout:"
+    message =
+      case err do
+        :ineligible -> "#{name} is not a member of [OHGOD] :getout:"
+        :already_registered -> "#{name} already has an account :colbert:"
+      end
 
     conn
     |> clear_session
@@ -154,13 +164,6 @@ defmodule GoonAuth.RegistrationController do
   end
 
   # Private helper functions
-  @doc "Verifies that a corp exists in LDAP and is eligible for auth"
-  def eligible?(corporation) do
-    case LDAP.retrieve(corporation, :corp) do
-      :not_found -> :not_eligible
-      {:ok, _corp} -> :eligible
-    end
-  end
 
   # Retrieve the registration session and data or return :no_session
   def get_registration_session(conn) do
