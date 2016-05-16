@@ -1,10 +1,10 @@
-language: elixir
-elixir:
-  - 1.2.2
-otp_release:
-  - 18.2.1
-install:
-  - mix do local.hex --force
-  - mix do deps.get, deps.compile
+language: generic
+services:
+  - docker
+before_install:
+  - docker --version
+  - docker login -e='admin@goatse.cx' -u='_json_key' -p="${GCR_KEY}" https://gcr.io
 script:
-  - mix compile
+  - docker build -t "gcr.io/goonswarm-1303/goon-auth:$(git rev-parse --short HEAD)" .
+after_script:
+  - docker push "gcr.io/goonswarm-1303/goon-auth:$(git rev-parse --short HEAD)"
