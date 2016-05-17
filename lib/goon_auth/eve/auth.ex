@@ -44,4 +44,23 @@ defmodule GoonAuth.EVE.Auth do
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end
+
+  # Other functions
+  @doc """
+  Retrieve a new access token based on the refresh token and check for potential
+  error messages from the SSO service.
+  """
+  def refresh_token!(refresh_token) do
+    token = OAuth2.AccessToken.new(%{"refresh_token" => refresh_token}, client())
+    {:ok, refreshed} = OAuth2.AccessToken.refresh(token)
+
+    # The library doesn't check the status codes, because why would you do that?
+    error = refreshed.other_params["error"]
+
+    if error do
+      {:error, error}
+    else
+      {:ok, refreshed}
+    end
+  end
 end

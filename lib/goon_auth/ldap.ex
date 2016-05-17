@@ -13,12 +13,6 @@ defmodule GoonAuth.LDAP do
     actual EVE objects.
   """
 
-  # Static LDAP values
-  @basedn "dc=tendollarbond,dc=com"
-  @userdn "ou=users,#{@basedn}"
-  @groupdn "ou=groups,#{@basedn}"
-  @corpdn "ou=corporations,#{@groupdn}"
-
   @doc "Prepare a user structure for insertion into LDAP"
   def prepare_user(usermap) do
     # Convert attributes into Erlang strings
@@ -78,8 +72,8 @@ defmodule GoonAuth.LDAP do
     :eldap.close(conn)
   end
 
-  @doc "Retrieves a user or corporation from LDAP"
-  @spec retrieve(binary, :user | :corp) :: {:ok, term} | :not_found
+  @doc "Retrieves a user, corporation or group from LDAP"
+  @spec retrieve(binary, :user | :corp | :group) :: {:ok, term} | :not_found
   def retrieve(name, type) do
     {:ok, conn} = connect_admin
     # Searching for the base object on a distinguished name gives us
@@ -96,11 +90,27 @@ defmodule GoonAuth.LDAP do
     case result do
       {:error, :noSuchObject} -> :not_found
       {:ok, {:eldap_search_result, [], _ref}} -> :not_found
-      {:ok, {:eldap_search_result, object_result, _ref}} ->
-        [{:eldap_entry, _dn, object}] = object_result
-        # eldap will return a Keymap which we can turn into a slightly nicer
-        # structure using maps, however the values will still be Erlang strings.
-        {:ok, :maps.from_list(object)}
+      {:ok, {:eldap_search_result, entry, _ref}} ->
+        {:ok, parse_object(List.first(entry))}
+    end
+  end
+
+  @doc "Finds the groups or corporations a user is amember of"
+  def find_groups(conn, username, type) do
+    user_dn = dn(username, :user)
+    search = [
+      filter: :eldap.equalityMatch('member', user_dn),
+      base: base_dn(type),
+      scope: :eldap.singleLevel,
+      attributes: ['cn', 'description']
+    ]
+
+    result = :eldap.search(conn, search)
+    case result do
+      {:ok, {:eldap_search_result, [], _ref}} -> {:ok, :none}
+      {:ok, {:eldap_search_result, groups, _ref}} ->
+        groups = Enum.map(groups, &(parse_object &1))
+        {:ok, groups}
     end
   end
 
@@ -160,14 +170,18 @@ defmodule GoonAuth.LDAP do
   end
 
   @doc "Create distinguished names from common names"
-  def dn(user, :user) do
-    "cn=#{user},#{@userdn}" |> String.to_char_list
+  def dn(name, type) do
+    "cn=#{name},#{base_dn(type)}" |> String.to_char_list
   end
-  def dn(corp, :corp) do
-    "cn=#{corp},#{@corpdn}" |> String.to_char_list
-  end
-  def dn(group, :group) do
-    "cn=#{group},#{@groupdn}" |> String.to_char_list
+
+  @doc "Returns the base DN for the specified object type"
+  def base_dn(type) do
+    case type do
+      :base  -> "dc=tendollarbond,dc=com"
+      :user  -> "ou=users,dc=tendollarbond,dc=com"
+      :group -> "ou=groups,dc=tendollarbond,dc=com"
+      :corp  -> "ou=corporations,ou=groups,dc=tendollarbond,dc=com"
+    end
   end
 
   @doc """
@@ -177,8 +191,9 @@ defmodule GoonAuth.LDAP do
   """
   def object_class(type) do
     case type do
-      :user -> 'goonPilot'
-      :corp -> 'groupOfNames'
+      :user  -> 'goonPilot'
+      :corp  -> 'groupOfNames'
+      :group -> 'groupOfNames'
     end
   end
 
@@ -188,5 +203,32 @@ defmodule GoonAuth.LDAP do
     |> String.downcase
     |> String.replace(" ", "_")
     |> String.replace("'", "")
+  end
+
+  @doc """
+  Transforms LDAP attributes into easier to handle Elixir values.
+
+  * Empty list (no attribute value) turns into nil
+  * Single item list turns into binary
+  * Multi-item list turns into binary list
+  """
+  def get_attr(key, attr) do
+    value =
+      case attr do
+        [] -> nil
+        [val | []] -> List.to_string(val)
+        _ -> Enum.map(attr, &(List.to_string &1))
+      end
+    {List.to_string(key), value}
+  end
+
+  @doc """
+  Transforms a whole eldap entry into a sane Elixir format using get_attr/2.
+  The result is a normal Elixir/Erlang map with binary keys and values.
+  """
+  def parse_object({:eldap_entry, dn, object}) do
+    Enum.map(object, fn({k, v}) -> get_attr(k, v) end)
+    |> :maps.from_list
+    |> Map.put("dn", List.to_string(dn))
   end
 end

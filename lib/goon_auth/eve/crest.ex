@@ -27,13 +27,6 @@ defmodule GoonAuth.EVE.CREST do
     }
   end
 
-  # TODO: CCP has not enabled this in CREST yet
-  # @doc "Retrieve a corporation, including nested information such as the alliance"
-  # def get_corporation(token, corp_id) do
-  #   corporation = get!(token, "/corporations/#{corp_id}/")
-  #   {:ok, corporation}
-  # end
-
   # Helper function to extract IDs from CREST URLs
   # Example: /corporations/1234567/ -> 1234567
   defp parse_id(url) do
