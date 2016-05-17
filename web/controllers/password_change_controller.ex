@@ -62,7 +62,6 @@ defmodule GoonAuth.PasswordChangeController do
   @doc "Helper function for putting a success flash and redirecting the user"
   def success(conn, name) do
     Logger.info("Changed password for #{name}")
-    IO.inspect conn
     conn
     |> put_flash(:info, "#{name}, your password has been updated.")
     |> redirect(to: "/")
