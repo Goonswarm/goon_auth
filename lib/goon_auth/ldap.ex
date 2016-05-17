@@ -107,7 +107,6 @@ defmodule GoonAuth.LDAP do
 
     result = :eldap.search(conn, search)
     case result do
-      {:ok, {:eldap_search_result, [], _ref}} -> {:ok, :none}
       {:ok, {:eldap_search_result, groups, _ref}} ->
         groups = Enum.map(groups, &(parse_object &1))
         {:ok, groups}
@@ -160,12 +159,29 @@ defmodule GoonAuth.LDAP do
     end
   end
 
+  @doc "Updates a user status in LDAP"
+  def set_user_status(conn, user, status) do
+    status =
+      case status do
+        :active   -> 'TRUE'
+        :inactive -> 'FALSE'
+      end
+    mod = :eldap.mod_replace('pilotActive', [status])
+    :ok = :eldap.modify(conn, dn(user, :user), [mod])
+  end
+
   @doc """
   Adds a user to an LDAP group or corporation by adding a new member entry with
   the users distinguished name.
   """
   def add_member(conn, group_dn, user_dn) do
     entry = :eldap.mod_add('member', [user_dn])
+    :ok = :eldap.modify(conn, group_dn, [entry])
+  end
+
+  @doc "Removes a member from an LDAP group or corporation"
+  def remove_member(conn, group_dn, user_dn) do
+    entry = :eldap.mod_delete('member', [user_dn])
     :ok = :eldap.modify(conn, group_dn, [entry])
   end
 
@@ -211,12 +227,15 @@ defmodule GoonAuth.LDAP do
   * Empty list (no attribute value) turns into nil
   * Single item list turns into binary
   * Multi-item list turns into binary list
+  * Single item booleans are turned into real booleans
   """
   def get_attr(key, attr) do
     value =
       case attr do
-        [] -> nil
-        [val | []] -> List.to_string(val)
+        []             -> nil
+        ['TRUE' | []]  -> true
+        ['FALSE' | []] -> false
+        [val | []]     -> List.to_string(val)
         _ -> Enum.map(attr, &(List.to_string &1))
       end
     {List.to_string(key), value}
@@ -229,6 +248,6 @@ defmodule GoonAuth.LDAP do
   def parse_object({:eldap_entry, dn, object}) do
     Enum.map(object, fn({k, v}) -> get_attr(k, v) end)
     |> :maps.from_list
-    |> Map.put("dn", List.to_string(dn))
+    |> Map.put("dn", dn)
   end
 end

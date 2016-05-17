@@ -38,7 +38,6 @@ defmodule GoonAuth.EVE.CREST do
   def get!(token, url) do
     import Poison
     response = OAuth2.AccessToken.get!(token, url)
-    IO.inspect(response, pretty: true)
     response.body |> decode!
   end
 end

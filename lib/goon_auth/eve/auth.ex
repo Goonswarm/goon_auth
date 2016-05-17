@@ -58,7 +58,7 @@ defmodule GoonAuth.EVE.Auth do
     error = refreshed.other_params["error"]
 
     if error do
-      {:error, error}
+      {:sso_error, error}
     else
       {:ok, refreshed}
     end

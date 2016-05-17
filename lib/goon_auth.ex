@@ -21,7 +21,9 @@ defmodule GoonAuth do
       # Start the endpoint when the application starts
       supervisor(GoonAuth.Endpoint, []),
       # Start the "cleaner" process that removes old registrations
-      worker(GoonAuth.Cleaner, [60])
+      worker(GoonAuth.Cleaner, [60]),
+      # Start the CREST synchronisatino process
+      worker(GoonAuth.EVE.Sync, [15 * 60])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
