@@ -68,7 +68,7 @@ defmodule GoonAuth.EVE.Sync do
         :inactive -> sync_inactive_user(state[:conn], user[:user])
       end
     rescue
-      e in MatchError -> Logger.error("Error synchronising #{name}: #{inspect e}")
+      e -> Logger.error("Error synchronising #{name}: #{inspect e}")
     end
     {:noreply, state}
   end

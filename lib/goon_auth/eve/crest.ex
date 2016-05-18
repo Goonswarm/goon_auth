@@ -37,7 +37,8 @@ defmodule GoonAuth.EVE.CREST do
   # TODO: Check status and raise appropriate warning
   def get!(token, url) do
     import Poison
-    response = OAuth2.AccessToken.get!(token, url)
+    # CCP API can be slow, lets use a longer timeout (15 seconds)
+    response = OAuth2.AccessToken.get!(token, url, [], timeout: 15000)
     response.body |> decode!
   end
 end
