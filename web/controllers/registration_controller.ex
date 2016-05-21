@@ -131,7 +131,7 @@ defmodule GoonAuth.RegistrationController do
   @doc "Finally write to LDAP and conclude registration"
   def process_registration(conn, user) do
     # Register user with LDAP
-    Logger.info("Registering user #{user[:name]}(#{user[:corporation]}#{user[:group]})")
+    Logger.info("Registering user #{user[:name]} (#{user[:corporation]}#{user[:group]})")
     :ok = LDAP.register_user(user)
 
     # Drop registration session and proceed to front page
