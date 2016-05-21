@@ -18,6 +18,10 @@ defmodule GoonAuth.Router do
 
     get "/", PageController, :index
 
+    # Login routes
+    get "/login", LoginController, :login_form
+    post "/login", LoginController, :handle_login
+    
     # Registration routes
     get "/register", RegistrationController, :register
     get "/register/start", RegistrationController, :start
