@@ -95,7 +95,7 @@ defmodule GoonAuth.LDAP do
     end
   end
 
-  @doc "Finds the groups or corporations a user is amember of"
+  @doc "Finds the groups or corporations a user is a member of"
   def find_groups(conn, username, type) do
     user_dn = dn(username, :user)
     search = [

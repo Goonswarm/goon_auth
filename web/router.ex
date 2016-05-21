@@ -21,7 +21,8 @@ defmodule GoonAuth.Router do
     # Login routes
     get "/login", LoginController, :login_form
     post "/login", LoginController, :handle_login
-    
+    get "/logout", LoginController, :handle_logout
+
     # Registration routes
     get "/register", RegistrationController, :register
     get "/register/start", RegistrationController, :start
@@ -33,6 +34,10 @@ defmodule GoonAuth.Router do
     # Password change routes
     get "/change-password", PasswordChangeController, :password_change_form
     post "/change-password", PasswordChangeController, :change_password_handler
+
+    # Jabber ping routes
+    get "/ping", PingController, :ping_form
+    post "/ping", PingController, :handle_ping
   end
 
   # Other scopes may use custom stacks.

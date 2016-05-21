@@ -1,0 +1,10 @@
+<p>Enter a message to send to all online Jabber users.</p>
+<p>You need to have ping permissions in order to do this.</p>
+
+<%= form_for @conn, "/ping", [as: :ping], fn f -> %>
+  <div class="form-group">
+    <%= label(f, :name, "Ping text") %>
+    <%= textarea(f, :ping, class: "form-control", required: true) %>
+  </div>
+  <button type="submit" class="btn btn-default">Ping!</button>
+<% end %>

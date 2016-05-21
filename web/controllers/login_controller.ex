@@ -27,6 +27,12 @@ defmodule GoonAuth.LoginController do
     end
   end
 
+  @doc "Destroys a users session"
+  def handle_logout(conn, _params) do
+    clear_session(conn)
+    |> redirect(to: "/")
+  end
+
   @doc "Validate user credentials against LDAP and creates the session"
   def check_login(conn, login) do
     username = login["name"]
