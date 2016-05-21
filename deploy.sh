@@ -6,4 +6,4 @@ readonly IMAGE="gcr.io/goonswarm-1303/goon-auth:${REV}"
 
 echo "Deploying goon_auth revision ${REV}..."
 
-kubectl rolling-update goon-auth --image "${IMAGE}"
+kubectl rolling-update goon-auth --update-period=30s --image "${IMAGE}"
