@@ -7,6 +7,7 @@ defmodule GoonAuth.PingController do
   """
   use GoonAuth.Web, :controller
   import GoonAuth.LoginController, only: [logged_in?: 1]
+  require Logger
   alias GoonAuth.Jabber
   alias GoonAuth.LDAP
 
@@ -42,6 +43,7 @@ defmodule GoonAuth.PingController do
     can_ping? = Enum.any?(groups, &(&1["cn"] == "pings"))
 
     if can_ping? do
+      Logger.info("#{user} pinging all online Jabber users")
       Jabber.message_online_users(ping["ping"])
       conn
       |> put_flash(:info, "Ping sent to Jabber")

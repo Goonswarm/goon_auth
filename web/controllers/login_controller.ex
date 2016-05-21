@@ -39,11 +39,13 @@ defmodule GoonAuth.LoginController do
     case LDAP.connect_user(username, login["password"]) do
       {:ok, ldap_conn} ->
         :eldap.close(ldap_conn)
+        Logger.info("Logging in user #{username}")
         conn
         |> put_session(:user, username)
         |> put_flash(:info, "#{username}, you have now logged in.")
         |> redirect(to: get_target(conn))
       {:error, :invalid_credentials} ->
+        Logger.info("Invalid login for user #{username}")
         conn
         |> put_flash(:error, "You entered invalid credentials, moron.")
         |> redirect(to: "/login")
