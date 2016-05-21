@@ -55,7 +55,7 @@ defmodule GoonAuth.Jabber do
     } |> XMLRPC.encode!
 
     headers = %{host: params["server"]}
-    response = HTTPoison.post!("http://ejabberd:5285/", request, headers)
+    response = HTTPoison.post!("http://ejabberd-internal:5285/", request, headers)
     response.body |> XMLRPC.decode
   end
 
