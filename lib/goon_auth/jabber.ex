@@ -31,7 +31,7 @@ defmodule GoonAuth.Jabber do
       subject: "",
       body: message
     }
-    {:ok, response} = ejabberd_call("send_message", params)
+    {:ok, _response} = ejabberd_call("send_message", params)
   end
 
   @doc "Sends a message to a group of users"
@@ -48,7 +48,7 @@ defmodule GoonAuth.Jabber do
   configuration.
   """
   def ejabberd_call(method_name, params \\ %{}) do
-    config = ejabberd_config()
+    config = Application.get_env(:goon_auth, :ejabberd, %{})
     request = %XMLRPC.MethodCall{
       method_name: method_name,
       params: [config, params]
@@ -57,10 +57,5 @@ defmodule GoonAuth.Jabber do
     headers = %{host: params["server"]}
     response = HTTPoison.post!("http://ejabberd-internal:5285/", request, headers)
     response.body |> XMLRPC.decode
-  end
-
-  @doc "Returns ejabberd configuration from environment"
-  def ejabberd_config do
-    Application.get_env(:goon_auth, :ejabberd, %{})
   end
 end

@@ -4,7 +4,7 @@ defmodule GoonAuth.LoginController do
   alias GoonAuth.LDAP
 
   @doc "Renders login form if no active session is found"
-  def login_form(conn, params) do
+  def login_form(conn, _params) do
     case logged_in?(conn) do
       {:error, :not_logged_in} -> render(conn, "login.html")
       {:ok, user} ->
