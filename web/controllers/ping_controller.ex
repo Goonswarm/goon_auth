@@ -17,7 +17,7 @@ defmodule GoonAuth.PingController do
         conn
         |> put_session(:login_target, "/ping")
         |> redirect(to: "/login")
-      {:ok, user} ->
+      {:ok, _user} ->
         render(conn, "ping.html")
     end
   end
@@ -43,8 +43,9 @@ defmodule GoonAuth.PingController do
     can_ping? = Enum.any?(groups, &(&1["cn"] == "pings"))
 
     if can_ping? do
+      message = get_message(ping["ping"], user)
       Logger.info("#{user} pinging all online Jabber users")
-      Jabber.message_online_users(ping["ping"])
+      Jabber.message_online_users(message)
       conn
       |> put_flash(:info, "Ping sent to Jabber")
       |> redirect(to: "/ping")
@@ -53,5 +54,13 @@ defmodule GoonAuth.PingController do
       |> put_flash(:error, "You're not allowed to send pings")
       |> redirect(to: "/login")
     end
+  end
+
+  # Adds the name of the pinger to the ping
+  defp get_message(ping, user) do
+    _message = """
+    #{ping}
+    (pinged by #{user})
+    """
   end
 end
