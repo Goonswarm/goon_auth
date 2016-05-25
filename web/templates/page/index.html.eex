@@ -10,16 +10,15 @@
 <div class="row marketing">
   <div class="col-lg-6">
     <h4>:words:</h4>
-    <p>This page lets you register an internal service account if your EVE character is a
-      member of the Ten Dollar Bond.</p>
+    <p>This page lets you register an account for GoonSwarm. If you are already a member of the alliance this will grant you access to our internal services immediately.</p>
     <p>Note that the character you register with will be your username and internal identity,
-      we will probably not help you change it later because :effort:</p>
+      we will probably not help you change it later because <img src="<%= static_path(@conn, "/images/effort.gif") %>" alt="Ugh, that button ..."> </p>
     <p>You do not need to register new accounts for alts.</p>
   </div>
   <div class="col-lg-6">
     <h4>Joining Ten Dollar Bond</h4>
-    <p>This page is only intended for people who have already joined our space guild.</p>
-    <p>We recruit only from the most exclusive community on the internet. Please visit our
+    <p>To apply, register an account and post your application on the forums. We will then judge you and talk about you behind your back until we reach some kind of conclusion.</p>
+    <p>Should you be a member of the most exclusive community on the internet applying becomes somewhat easier. Please visit our
       <a href="https://forums.somethingawful.com/showthread.php?threadid=3773367">
         recruitment thread</a> for more information.
     </p>
@@ -27,18 +26,7 @@
 </div>
 <div class="row marketing">
   <div class="col-lg-6">
-        <h4>Services</h4>
-    <ul>
-      <li>
-        <a href="https://forums.tendollarbond.com">Forums</a>
-      </li>
-      <li>
-        <h5>Mumble</h5>
-        <p>After registering, connect to Mumble at <strong>mumble.tendollarbond.com</strong> with port <strong>64738</strong></p>
-      </li>
-      <li>
-        <em>Jabber</em>
-      </li>
-    </ul>
+    <h4>Services</h4>
+    <p>Find information about how to use our other IT services <a href="https://forums.tendollarbond.com/viewtopic.php?f=4&t=115">on the forums</a> (only accessible to members).</p>.
   </div>
 </div>
