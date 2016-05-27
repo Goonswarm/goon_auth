@@ -131,6 +131,7 @@ defmodule GoonAuth.EVE.Sync do
     if character[:corporation] != corp["cn"] do
       Logger.info("Deactivating #{user["cn"]} (CREST corp: #{character[:corporation]})")
       LDAP.remove_member(conn, corp["dn"], user["dn"])
+      LDAP.add_member(conn, LDAP.dn("applicants", :group), user["dn"])
       LDAP.set_user_status(conn, user["cn"], :inactive)
     end
   end
@@ -153,6 +154,7 @@ defmodule GoonAuth.EVE.Sync do
       {:ok, corp} ->
           Logger.info("Activating #{user["cn"]} (Corp: #{corp["cn"]})")
           LDAP.add_member(conn, corp["dn"], user["dn"])
+          LDAP.remove_member(conn, LDAP.dn("applicants", :group), user["dn"])
           LDAP.set_user_status(conn, user["cn"], :active)
     end
   end
