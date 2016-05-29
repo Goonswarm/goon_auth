@@ -38,6 +38,9 @@ defmodule GoonAuth.Router do
     # Jabber ping routes
     get "/ping", PingController, :ping_form
     post "/ping", PingController, :handle_ping
+
+    # nginx auth handler route
+    get "/auth", LoginController, :auth_check
   end
 
   # Other scopes may use custom stacks.
