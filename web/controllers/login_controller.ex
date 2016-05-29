@@ -9,7 +9,8 @@ defmodule GoonAuth.LoginController do
   @doc "Renders login form if no active session is found"
   def login_form(conn, _params) do
     case logged_in?(conn) do
-      {:error, :not_logged_in} -> render(conn, "login.html")
+      {:error, :not_logged_in} ->
+        render(conn, "login.html", target: get_target(conn))
       {:ok, user} ->
         conn
         |> put_flash(:info, "#{user}, you are already logged in!")
@@ -46,7 +47,7 @@ defmodule GoonAuth.LoginController do
         |> put_session(:user, username)
         |> put_resp_cookie("_goon_auth_user", username)
         |> put_flash(:info, "#{username}, you have now logged in.")
-        |> redirect(to: get_target(conn))
+        |> redirect(to: login["target"])
       {:error, :invalid_credentials} ->
         Logger.info("Invalid login for user #{username}")
         conn
