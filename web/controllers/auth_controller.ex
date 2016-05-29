@@ -18,18 +18,41 @@ defmodule GoonAuth.AuthController do
         |> put_status(401)
         |> text("Login required")
       {:ok, user} ->
-        {:ok, ldap_conn} = LDAP.connect
-        active? = LDAP.is_active?(ldap_conn, user)
-        :eldap.close(ldap_conn)
-        IO.inspect active?
-
-        if active? do
-          text(conn, "Access granted")
-        else
-          conn
-          |> put_status(403)
-          |> text("Inactive user")
-        end
+        check_access(conn, user)
     end
+  end
+
+  @doc """
+  Performs access checks based on the incoming authentication request.
+  Only active pilots are allowed. Nginx can optionally request users to be a
+  member of a particular LDAP group by setting the X-Access-Group header.
+  """
+  def check_access(conn, user) do
+    {:ok, ldap_conn} = LDAP.connect
+    # Ensure that pilotActive=true
+    active? = LDAP.is_active?(ldap_conn, user)
+
+    # Check user's access group
+    group_header = get_req_header(conn, "X-Access-Group")
+    access? = check_user_groups(ldap_conn, user, group_header)
+
+    :eldap.close(ldap_conn)
+
+    if active? and access? do
+      text(conn, "Access granted")
+    else
+      conn
+      |> put_status(403)
+      |> text("Inactive user")
+    end
+  end
+
+  @doc "Check whether the user is in the correct group in LDAP"
+  def check_user_groups(_, _, []) do
+    true
+  end
+  def check_user_groups(ldap_conn, user, [group]) do
+    {:ok, groups} = LDAP.find_groups(ldap_conn, user, :group)
+    Enum.any?(groups, &(&1["cn"] == group))
   end
 end
