@@ -44,6 +44,7 @@ defmodule GoonAuth.LoginController do
         Logger.info("Logging in user #{username}")
         conn
         |> put_session(:user, username)
+        |> put_resp_cookie("_goon_auth_user", username)
         |> put_flash(:info, "#{username}, you have now logged in.")
         |> redirect(to: get_target(conn))
       {:error, :invalid_credentials} ->
@@ -54,10 +55,18 @@ defmodule GoonAuth.LoginController do
     end
   end
 
-  @doc "Returns the login redirect target if it exists"
+  @doc """
+  Returns the login redirect target if it exists.
+  The session variable :login_target takes precedence over the X-Target header.
+  If not target is found, we simply redirect to /
+  """
   def get_target(conn) do
     case get_session(conn, :login_target) do
-      nil    -> "/"
+      nil ->
+        case get_req_header(conn, "X-Target") do
+          []       -> "/"
+          [target] -> target
+        end
       target -> target
     end
   end
