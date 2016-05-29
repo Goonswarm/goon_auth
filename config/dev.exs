@@ -11,7 +11,8 @@ config :goon_auth, GoonAuth.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [],
+  static_url: [host: "localhost", port: 4000]
 
 # Watch static and templates for browser reloading.
 config :goon_auth, GoonAuth.Endpoint,

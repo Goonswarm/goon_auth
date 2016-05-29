@@ -13,7 +13,8 @@ use Mix.Config
 # which you typically run after static files are built.
 config :goon_auth, GoonAuth.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [port: 80]
+  url: [port: 80],
+  static_url: [scheme: "https", host: "auth.tendollarbond.com"]
 
 # Do start Phoenix
 config :phoenix, :serve_endpoints, true

@@ -12,7 +12,7 @@
     <h4>:words:</h4>
     <p>This page lets you register an account for GoonSwarm. If you are already a member of the alliance this will grant you access to our internal services immediately.</p>
     <p>Note that the character you register with will be your username and internal identity,
-      we will probably not help you change it later because <img src="<%= static_path(@conn, "/images/effort.gif") %>" alt="Ugh, that button ..."> </p>
+      we will probably not help you change it later because <img src="<%= static_url(@conn, "/images/effort.gif") %>" alt="Ugh, that button ..."> </p>
     <p>You do not need to register new accounts for alts.</p>
   </div>
   <div class="col-lg-6">
