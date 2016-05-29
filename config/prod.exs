@@ -14,7 +14,7 @@ use Mix.Config
 config :goon_auth, GoonAuth.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [port: 80],
-  static_url: [scheme: "https", host: "auth.tendollarbond.com"]
+  static_url: [scheme: "https", host: "auth.tendollarbond.com", port: 443]
 
 # Do start Phoenix
 config :phoenix, :serve_endpoints, true
