@@ -11,7 +11,7 @@ defmodule GoonAuth.AuthController do
   Performs an authentication check for active users.
   This is called by nginx for authenticating proxied requests.
   """
-  def auth_check(conn, _params) do
+  def handle_auth(conn, _params) do
     case logged_in?(conn) do
       {:error, :not_logged_in} ->
         conn
