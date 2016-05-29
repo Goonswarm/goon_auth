@@ -1,8 +1,6 @@
 defmodule GoonAuth.LoginController do
   @moduledoc """
-  This controller manages logins to GoonAuth for protected services, such as
-  pings, as well as proxied login requests for other services running behind
-  nginx.
+  This controller manages logins to GoonAuth for protected services, like pings.
   """
   use GoonAuth.Web, :controller
   require Logger
@@ -18,33 +16,6 @@ defmodule GoonAuth.LoginController do
         |> redirect(to: "/")
     end
   end
-
-  @doc """
-  Performs an authentication check for active users.
-  This is called by nginx for authenticating proxied requests.
-  """
-  def auth_check(conn, params) do
-    case logged_in?(conn) do
-      {:error, :not_logged_in} ->
-        conn
-        |> put_status(401)
-        |> text("Login required")
-      {:ok, user} ->
-        {:ok, ldap_conn} = LDAP.connect
-        active? = LDAP.is_active?(ldap_conn, user)
-        :eldap.close(ldap_conn)
-        IO.inspect active?
-
-        if active? do
-          text(conn, "Access granted")
-        else
-          conn
-          |> put_status(403)
-          |> text("Inactive user")
-        end
-    end
-  end
-
   @doc "Receives a login request and logs the user in"
   def handle_login(conn, params) do
     case logged_in?(conn) do

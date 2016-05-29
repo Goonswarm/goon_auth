@@ -40,7 +40,7 @@ defmodule GoonAuth.Router do
     post "/ping", PingController, :handle_ping
 
     # nginx auth handler route
-    get "/auth", LoginController, :auth_check
+    get "/auth", AuthController, :auth_check
   end
 
   # Other scopes may use custom stacks.
