@@ -93,6 +93,12 @@ defmodule GoonAuth.LDAP do
     end
   end
 
+  @doc "Simply checks whether a given pilot name is an active user"
+  def is_active?(conn, name) do
+    {:ok, user} = retrieve(conn, name, :user)
+    user["pilotActive"] == "true"
+  end
+
   @doc "Finds the groups or corporations a user is a member of"
   def find_groups(conn, username, type) do
     user_dn = dn(username, :user)

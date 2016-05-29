@@ -58,7 +58,7 @@ defmodule GoonAuth.PingController do
 
   # Adds the name of the pinger to the ping
   defp get_message(ping, user) do
-    _message = """
+    """
     #{ping}
     (pinged by #{user})
     """
