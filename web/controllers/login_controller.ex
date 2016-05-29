@@ -63,7 +63,7 @@ defmodule GoonAuth.LoginController do
   def get_target(conn) do
     case get_session(conn, :login_target) do
       nil ->
-        case get_req_header(conn, "X-Target") do
+        case get_req_header(conn, "x-target") do
           []       -> "/"
           [target] -> target
         end
