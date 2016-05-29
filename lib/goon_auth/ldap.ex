@@ -73,9 +73,8 @@ defmodule GoonAuth.LDAP do
   end
 
   @doc "Retrieves a user, corporation or group from LDAP"
-  @spec retrieve(binary, :user | :corp | :group) :: {:ok, term} | :not_found
-  def retrieve(name, type) do
-    {:ok, conn} = connect_admin
+  @spec retrieve(pid, binary, :user | :corp | :group) :: {:ok, term} | :not_found
+  def retrieve(conn, name, type) do
     # Searching for the base object on a distinguished name gives us
     # exactly that object, i.e. the user or corporation.
     search = [
@@ -85,7 +84,6 @@ defmodule GoonAuth.LDAP do
     ]
 
     result = :eldap.search(conn, search)
-    :eldap.close(conn)
 
     case result do
       {:error, :noSuchObject} -> :not_found

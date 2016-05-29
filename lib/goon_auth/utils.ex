@@ -12,8 +12,8 @@ defmodule GoonAuth.Utils do
   Retrieves a user's stored refresh token from LDAP and uses it to fetch a new
   authentication token from the EVE SSO.
   """
-  def get_user_token(username) do
-    case LDAP.retrieve(username, :user) do
+  def get_user_token(conn, username) do
+    case LDAP.retrieve(conn, username, :user) do
       :not_found  -> :not_found
       {:ok, user} ->
         Auth.refresh_token!(user["refreshToken"])

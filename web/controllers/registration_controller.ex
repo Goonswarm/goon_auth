@@ -48,8 +48,11 @@ defmodule GoonAuth.RegistrationController do
 
   @doc "Verifies that a corp exists in LDAP and is eligible for auth"
   def eligible?(char) do
-    corp = LDAP.retrieve(char[:corporation], :corp)
-    user = LDAP.retrieve(char[:name], :user)
+    {:ok, conn} = LDAP.connect
+    corp = LDAP.retrieve(conn, char[:corporation], :corp)
+    user = LDAP.retrieve(conn, char[:name], :user)
+    :eldap.close(conn)
+
     # Corp exists, user doesn't -> eligible
     # User exists -> double registration
     # Corp doesn't exist -> ineligible

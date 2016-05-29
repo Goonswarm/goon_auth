@@ -82,6 +82,7 @@ defmodule GoonAuth.EVE.Sync do
         :active -> 'TRUE'
         :inactive -> 'FALSE'
       end
+
     search = [
       filter: :eldap.equalityMatch('pilotActive', active),
       base: base_dn(:user),
@@ -145,7 +146,7 @@ defmodule GoonAuth.EVE.Sync do
   def sync_inactive_user(conn, user) do
     character = crest_fetch(user)
 
-    result = LDAP.retrieve(character[:corporation], :corp)
+    result = LDAP.retrieve(conn, character[:corporation], :corp)
 
     case result do
       # User still ineligible
