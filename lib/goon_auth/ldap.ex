@@ -167,8 +167,8 @@ defmodule GoonAuth.LDAP do
   def set_user_status(conn, user, status) do
     status =
       case status do
-        :active   -> 'TRUE'
-        :inactive -> 'FALSE'
+        :active   -> 'true'
+        :inactive -> 'false'
       end
     mod = :eldap.mod_replace('pilotActive', [status])
     :ok = :eldap.modify(conn, dn(user, :user), [mod])
