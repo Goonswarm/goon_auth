@@ -33,7 +33,7 @@ defmodule GoonAuth.AuthController do
     active? = LDAP.is_active?(ldap_conn, user)
 
     # Check user's access group
-    group_header = get_req_header(conn, "X-Access-Group")
+    group_header = get_req_header(conn, "x-access-group")
     access? = check_user_groups(ldap_conn, user, group_header)
 
     :eldap.close(ldap_conn)
