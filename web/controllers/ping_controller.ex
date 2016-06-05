@@ -6,61 +6,31 @@ defmodule GoonAuth.PingController do
   Sending pings is restricted to users in the LDAP group 'ping'.
   """
   use GoonAuth.Web, :controller
-  import GoonAuth.LoginController, only: [logged_in?: 1]
+  import GoonAuth.Auth, only: [authenticate: 2, authorize: 2]
   require Logger
   alias GoonAuth.Jabber
-  alias GoonAuth.LDAP
+
+  plug :authenticate
+  plug :authorize, group: "pings"
 
   def ping_form(conn, _params) do
-    case logged_in?(conn) do
-      {:error, :not_logged_in} ->
-        conn
-        |> put_session(:login_target, "/ping")
-        |> redirect(to: "/login")
-      {:ok, _user} ->
-        render(conn, "ping.html")
-    end
+    render(conn, "ping.html")
   end
 
   def handle_ping(conn, params) do
-    # I'm too tired to not repeat myself, wtf
-    case logged_in?(conn) do
-      {:error, :not_logged_in} ->
-        conn
-        |> put_session(:login_target, "/ping")
-        |> redirect(to: "/login")
-      {:ok, user} ->
-        send_ping(conn, user, params["ping"])
-    end
-  end
+    user = get_session(conn, :user)
+    ping = params["ping"]
 
-  def send_ping(conn, user, ping) do
-    # Check LDAP permissions
-    {:ok, ldap_conn} = LDAP.connect_admin
-    {:ok, groups} = LDAP.find_groups(ldap_conn, user, :group)
-    :eldap.close(ldap_conn)
-
-    can_ping? = Enum.any?(groups, &(&1["cn"] == "pings"))
-
-    if can_ping? do
-      message = get_message(ping["ping"], user)
-      Logger.info("#{user} pinging all online Jabber users")
-      Jabber.message_online_users(message)
-      conn
-      |> put_flash(:info, "Ping sent to Jabber")
-      |> redirect(to: "/ping")
-    else
-      conn
-      |> put_flash(:error, "You're not allowed to send pings")
-      |> redirect(to: "/login")
-    end
-  end
-
-  # Adds the name of the pinger to the ping
-  defp get_message(ping, user) do
-    """
-    #{ping}
+    message = """
+    #{ping["ping"]}
     (pinged by #{user})
     """
+
+    Logger.info("#{user} pinging all online Jabber users")
+    Jabber.message_online_users(message)
+
+    conn
+    |> put_flash(:info, "Ping sent to Jabber")
+    |> redirect(to: "/ping")
   end
 end
