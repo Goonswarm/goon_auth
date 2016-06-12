@@ -62,6 +62,7 @@ defmodule GoonAuth.Auth do
     :eldap.close(ldap_conn)
 
     if active? and access? do
+      Logger.info("Granted access to #{conn.request_path} for user #{user}")
       conn
     else
       Logger.info("Denied access to #{conn.request_path} for user #{user}")
