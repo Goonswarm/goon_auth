@@ -28,6 +28,11 @@ defmodule GoonAuth.Web do
 
       import GoonAuth.Router.Helpers
       import GoonAuth.Gettext
+
+      # Convenience imports
+      require Logger
+      alias GoonAuth.LDAP
+      import GoonAuth.Auth, only: [authenticate: 2, authorize: 2]
     end
   end
 
