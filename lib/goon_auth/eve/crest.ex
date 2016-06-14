@@ -15,15 +15,12 @@ defmodule GoonAuth.EVE.CREST do
   @doc "Retrieve a character, including nested information such as the corporation"
   def get_character(token, character_id) do
     character = get!(token, "/characters/#{character_id}/")
-    corporation_id = character["corporation"]["name"]
+    corporation = character["corporation"]["name"]
     character_id = character["id_str"]
-    # corporation = get_corporation(token, corporation_id)
-    account_id = parse_id(character["accounts"]["href"])
     %{
       id: character_id,
       name: character["name"],
-      corporation: corporation_id,
-      account: account_id
+      corporation: corporation
     }
   end
 
