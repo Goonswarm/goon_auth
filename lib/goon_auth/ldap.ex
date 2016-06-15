@@ -103,7 +103,8 @@ defmodule GoonAuth.LDAP do
   def find_groups(conn, username, type) do
     user_dn = dn(username, :user)
     search = [
-      filter: :eldap.equalityMatch('member', user_dn),
+      filter: :eldap.extensibleMatch(user_dn, [type: 'member',
+                                               matchingRule: 'distinguishedNameMatch']),
       base: base_dn(type),
       scope: :eldap.singleLevel,
       attributes: ['cn', 'description']
