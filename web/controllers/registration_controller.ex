@@ -198,7 +198,9 @@ defmodule GoonAuth.RegistrationController do
   def update_token(name, token) do
     refresh_token = String.to_charlist(token.refresh_token)
     Logger.info("Updating refresh token for user #{name}")
-    :ok = LDAP.replace_token(name, refresh_token)
+    {:ok, conn} = LDAP.connect_admin
+    :ok = LDAP.replace_token(conn, name, refresh_token)
+    :eldap.close(conn)
   end
 
   # Private helper functions

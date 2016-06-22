@@ -21,10 +21,13 @@ defmodule GoonAuth.EVE.Auth do
     ])
   end
 
-  def authorize_url!(params \\ []) do
-    scopes = ["characterAccountRead", "characterKillsRead",
-              "characterLocationRead","characterStatsRead",
-              "characterSkillsRead", "publicData", "fleetRead"]
+  defp default_scopes do
+    ["characterAccountRead", "characterKillsRead",
+     "characterLocationRead","characterStatsRead",
+     "characterSkillsRead", "publicData", "fleetRead"]
+  end
+
+  def authorize_url!(scopes \\ default_scopes(), params \\ []) do
     client()
     |> put_param(:scope, Enum.join(scopes, " "))
     |> OAuth2.Client.authorize_url!(params)
