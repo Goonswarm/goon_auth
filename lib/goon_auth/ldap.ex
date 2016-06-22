@@ -175,6 +175,12 @@ defmodule GoonAuth.LDAP do
     :ok = :eldap.modify(conn, dn(user, :user), [mod])
   end
 
+  @doc "Replaces a user's refresh token in LDAP"
+  def replace_token(conn, user, token) do
+    mod = :eldap.mod_replace('refreshToken', [token])
+    :ok = :eldap.modify(conn, dn(user, :user), [mod])
+  end
+
   @doc """
   Adds a user to an LDAP group or corporation by adding a new member entry with
   the users distinguished name.

@@ -42,6 +42,9 @@ defmodule GoonAuth.RegistrationController do
 
     case eligible?(character) do
       {:ok, status} -> begin_registration(conn, status, token, character)
+      {:error, :already_registered} ->
+        update_token(character[:name], token)
+        reject_registration(conn, :already_registered, character[:name])
       {:error, err} -> reject_registration(conn, err, character[:name])
     end
   end
@@ -186,6 +189,16 @@ defmodule GoonAuth.RegistrationController do
     |> clear_session
     |> put_flash(:error, message)
     |> redirect(to: "/")
+  end
+
+  @doc """
+  If a user is already registered but we receive a new token for them, the token
+  should be updated in LDAP.
+  """
+  def update_token(name, token) do
+    refresh_token = String.to_charlist(token.refresh_token)
+    Logger.info("Updating refresh token for user #{name}")
+    :ok = LDAP.replace_token(name, refresh_token)
   end
 
   # Private helper functions
