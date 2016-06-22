@@ -196,7 +196,7 @@ defmodule GoonAuth.RegistrationController do
   should be updated in LDAP.
   """
   def update_token(name, token) do
-    refresh_token = String.to_charlist(token.refresh_token)
+    refresh_token = :erlang.binary_to_list(token.refresh_token)
     Logger.info("Updating refresh token for user #{name}")
     {:ok, conn} = LDAP.connect_admin
     :ok = LDAP.replace_token(conn, name, refresh_token)
