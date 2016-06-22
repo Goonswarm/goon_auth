@@ -1,0 +1,8 @@
+<div class="jumbotron">
+  <h2>HERE BE DRAGONS!</h2>
+  <p>This page lets you upgrade the API access we have for your character.</p>
+  <p>If you do this, you grant us NSA-level privileges over your EVE account (<i>mostly</i> read-only).</p>
+  <p>This is mostly intended to be used by people who have been told to use it, though we won't stop you from giving us your precious keys.</p>
+  <p>After pressing the button below, read carefully which permissions we are requesting before accepting anything.</p>
+  <a href="<%= @oauth_url %>"><img src="/images/eve_sso_white.png" alt="EVE SSO"></a>
+</div>
