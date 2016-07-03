@@ -135,14 +135,15 @@ defmodule GoonAuth.RegistrationController do
   @doc "Finally write to LDAP and conclude registration"
   def process_registration(conn, user) do
     # Register user with LDAP
-    Logger.info("Registering user #{user[:name]} (#{user[:corporation]}#{user[:group]})")
+    name = user[:name]
+    Logger.info("Registering user #{name} (#{user[:corporation]}#{user[:group]})")
     :ok = LDAP.register_user(user)
 
     # Drop registration session and proceed to front page
     conn
     |> clear_session
-    |> put_flash(:info, "Welcome to GoonSwarm! You can now log in to our services.")
-    |> redirect(to: "/")
+    |> put_session(:user, name)
+    |> redirect(to: "/welcome")
   end
 
   @doc """
@@ -167,8 +168,6 @@ defmodule GoonAuth.RegistrationController do
   registered an account.
   """
   def reject_registration(conn, err, name) do
-    # I want :frogout: here, but flashes are currently escaped.
-    #getout = "<img src=\"/images/getout.gif\" alt=\":getout\">"
     message =
       case err do
         :ineligible -> "#{name} is not a member of [OHGOD] :getout:"

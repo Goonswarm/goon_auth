@@ -1,0 +1,24 @@
+<div class="jumbotron">
+  <h2>Welcome to GoonSwarm, <%= @name %>!</h2>
+  <p>Follow the instructions below based on whether you're already a member or an applicant looking to join us.</p>
+  <p>Remember that your username is always your <b>character name</b> and the password is whatever you just configured.</p>
+</div>
+
+<div class="row marketing">
+  <div class="col-lg-6">
+    <h4>GoonSwarm members</h4>
+    <p>Wow, you've managed to complete our registration process! This means you now have access to all internal services which is an opportunity you should exploit right away.</p>
+    <p>You should go and spend some time reading the <a href="https://forums.tendollarbond.com/">forums</a> and join Jabber to hear about what's happening at the moment.</p>
+    <p>Information about how to join Jabber, Mumble and so on is available <a href="https://forums.tendollarbond.com/viewtopic.php?f=4&t=115">on the forums</a>.</p>
+  </div>
+  <div class="col-lg-6">
+    <h4>GoonSwarm applicants</h4>
+    <p>You've made it halfway through the application process already!</p>
+    <p>Follow these simple steps from here on:</p>
+    <ol>
+      <li>Post a thread about who you are in our <a href="https://forums.tendollarbond.com/viewforum.php?f=32">application subforum</a>.<br>If you are an <strong>SA goon</strong> link your profile, if you are being <strong>vouched for</strong> tell us by whom and ask them to confirm it in the thread.</li>
+      <li>Apply in-game to <strong>Ten Dollar Bond</strong> [LOLTX].</li>
+      <li>Pray to your favourite deities.</li>
+    </ol>
+  </div>
+</div>

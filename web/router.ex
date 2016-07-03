@@ -17,6 +17,7 @@ defmodule GoonAuth.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/welcome", PageController, :welcome
 
     # Login routes
     get "/login", LoginController, :login_form
