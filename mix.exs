@@ -36,7 +36,6 @@ defmodule GoonAuth.Mixfile do
      {:httpoison, "~> 0.9"},
      {:oauth2, "~> 0.5"},
      {:uuid, "~> 1.1"},
-     {:exrm, "~> 1.0"},
      {:erlsom, "~> 1.4"},
      {:xmlrpc, "~> 1.0"},
     ]

@@ -11,6 +11,6 @@ ENV PORT 4000
 ADD . /opt/goon_auth
 WORKDIR /opt/goon_auth
 
-RUN mix do deps.get, deps.compile, compile, release
+RUN mix do deps.get, deps.compile, compile
 
-CMD /opt/goon_auth/rel/goon_auth/bin/goon_auth foreground
+CMD mix run --no-halt
