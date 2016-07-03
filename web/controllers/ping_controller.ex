@@ -11,7 +11,7 @@ defmodule GoonAuth.PingController do
   alias GoonAuth.Jabber
 
   plug :authenticate
-  plug :authorize, group: "pings"
+  plug :authorize, banned: "no-pings"
 
   def ping_form(conn, _params) do
     render(conn, "ping.html")

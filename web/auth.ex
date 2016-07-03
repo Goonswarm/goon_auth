@@ -23,17 +23,6 @@ defmodule GoonAuth.Auth do
     end
   end
 
-  # Redirects to login page if :redirect option is set to true, otherwise
-  # returns 401.
-  defp respond_unauthenticated(conn, redirect?) do
-    case redirect? do
-      # Treat nil like true (default should be to redirect if option is unset)
-      nil   -> conn |> redirect(to: "/login")
-      true  -> conn |> redirect(to: "/login")
-      false -> conn |> put_status(401) |> text("Login required")
-    end
-  end
-
   @doc """
   Validates that a logged-in user has access to the resource.
 
@@ -42,6 +31,9 @@ defmodule GoonAuth.Auth do
   Accepts a `:group` option that sets the LDAP group to check for. If no option
   is set, it will check the X-Access-Group HTTP header which can be set by nginx
   for proxy-authentication requests.
+
+  In addition a `:banned` option or `X-Banned-Group` header can be set to
+  disallow access specifically for members of a group.
   """
   def authorize(conn, opts) do
     user = get_session(conn, :user)
@@ -51,13 +43,8 @@ defmodule GoonAuth.Auth do
     active? = LDAP.is_active?(ldap_conn, user)
 
     # Check group access restriction
-    access? =
-      case auth_group(conn, opts) do
-        []      -> true
-        [group] ->
-          {:ok, groups} = LDAP.find_groups(ldap_conn, user, :group)
-          Enum.any?(groups, &(&1["cn"] == group))
-      end
+    {:ok, groups} = LDAP.find_groups(ldap_conn, user, :group)
+    access? = check_access(groups, conn, opts)
 
     :eldap.close(ldap_conn)
 
@@ -70,12 +57,50 @@ defmodule GoonAuth.Auth do
     end
   end
 
+  defp check_access(groups, conn, opts) do
+    # Check whether the user is in the required access group
+    has_access? =
+      case required_group(conn, opts) do
+        []      -> true
+        [group] -> Enum.any?(groups, &(&1["cn"] == group))
+      end
+
+    # Check whether the user is in a banned group
+    not_banned? =
+      case banned_group(conn, opts) do
+        []      -> true
+        [group] -> Enum.all?(groups, &(&1["cn"] != group))
+      end
+
+    has_access? and not_banned?
+  end
+
   # Checks the :group option and X-Access-Group header to figure out which
   # access group is necessary.
-  defp auth_group(conn, opts) do
+  defp required_group(conn, opts) do
     case opts[:group] do
       nil   -> get_req_header(conn, "x-access-group")
       group -> [group]
+    end
+  end
+
+  # Checks the :banned option and X-Banned-Group header to figure out if any
+  # groups are banned from access.
+  defp banned_group(conn, opts) do
+    case opts[:banned] do
+      nil   -> get_req_header(conn, "x-banned-group")
+      group -> [group]
+    end
+  end
+
+  # Redirects to login page if :redirect option is set to true, otherwise
+  # returns 401.
+  defp respond_unauthenticated(conn, redirect?) do
+    case redirect? do
+      # Treat nil like true (default should be to redirect if option is unset)
+      nil   -> conn |> redirect(to: "/login")
+      true  -> conn |> redirect(to: "/login")
+      false -> conn |> put_status(401) |> text("Login required")
     end
   end
 

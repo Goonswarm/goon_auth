@@ -1,5 +1,6 @@
 <p>Enter a message to send to all online Jabber users.</p>
-<p>You need to have ping permissions in order to do this.</p>
+<p>Abusing this will lead to your ping access being revoked immediately.</p>
+<p>You can <strong>always</strong> use this to take out fleets, set up gatecamps and the like without asking for permission first!</p>
 
 <%= form_for @conn, "/ping", [as: :ping], fn f -> %>
   <div class="form-group">
