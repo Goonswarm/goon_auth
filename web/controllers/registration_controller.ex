@@ -5,21 +5,6 @@ defmodule GoonAuth.RegistrationController do
   alias GoonAuth.EVE.{Auth, CREST}
   alias GoonAuth.LDAP
 
-  @doc """
-  Render main registration page.
-
-  If the user has not yet started a registration session, they will be presented
-  with the SSO login button.
-
-  If an active registration session exists we request a password and email address.
-  """
-  def register(conn, _params) do
-    case get_registration_session(conn) do
-      :no_session     -> redirect(conn, to: "/register/start")
-      {:ok, _session} -> redirect(conn, to: "/register/form")
-    end
-  end
-
   @doc "Registration start page with SSO login button"
   def start(conn, _params) do
     # Drop session in case there was an old one present
@@ -37,15 +22,17 @@ defmodule GoonAuth.RegistrationController do
   """
   def catch_token(conn, params) do
     token = Auth.get_token!(code: params["code"])
-    character_id = CREST.get_character_id(token)
-    character = CREST.get_character(token, character_id)
+    char_id = CREST.get_character_id(token)
+    character = CREST.get_character(token, char_id)
+    name = character[:name]
 
     case eligible?(character) do
-      {:ok, status} -> begin_registration(conn, status, token, character)
+      {:ok, status} ->
+        begin_registration(conn, status, token, name, char_id)
       {:error, :already_registered} ->
-        update_token(character[:name], token)
-        reject_registration(conn, :already_registered, character[:name])
-      {:error, err} -> reject_registration(conn, err, character[:name])
+        update_token(name, token)
+        reject_registration(conn, :already_registered, name)
+      {:error, err} -> reject_registration(conn, err, name)
     end
   end
 
@@ -86,40 +73,38 @@ defmodule GoonAuth.RegistrationController do
 
   @doc """
   Receives a filled in registration form, validates the registration session
-  and passes on to the next step
+  and passes on to the next step.
   """
-  def validate_registration(conn, params) do
-    case get_registration_session(conn) do
-      :no_session -> redirect(conn, to: "/register/start")
-      {:ok, {_id, token, character, time}} ->
-        # Perform registration validations
-        reg = params["registration"]
-        form_ok = Enum.all?([reg["email"], reg["password"], reg["confirm"]])
-        long_pass = String.length(reg["password"]) >= 8
-        pass_match = reg["password"] == reg["confirm"]
+  def process_form(conn, params) do
+    # Perform registration validations
+    status = get_session(conn, :status)
+    reg = params["registration"]
+    form_ok = Enum.all?([reg["email"], reg["password"], reg["confirm"]])
+    long_pass = String.length(reg["password"]) >= 8
+    pass_match = reg["password"] == reg["confirm"]
 
-        # Check that the session is still valid
-        now = :os.system_time(:seconds)
-        session_valid = (now - time) <= 500
+    good_to_go? = form_ok and long_pass and pass_match
 
-        good_to_go? = form_ok and long_pass and pass_match and session_valid
-
-        # Send the user on if everything is fine
-        if good_to_go? do
-          prepare_registration(conn, reg, token, character)
-        else
-          conn
-          |> put_flash(:error, "Please try to fill the form in correctly!")
-          |> register(params)
-        end
+    # Send the user on if everything is fine
+    if good_to_go? do
+      prepare_registration(conn, reg)
+    else
+      conn
+      |> put_flash(:error, "Please try to fill the form in correctly!")
+      |> redirect(to: form_url(status))
     end
   end
 
   @doc """
-  Consolidates the different values needed for registering and checks for double-
-  registrations.
+  Retrieves all necessary information about the character being registered and
+  configures applicant / member status before processing the registration.
   """
-  def prepare_registration(conn, reg, token, character) do
+  def prepare_registration(conn, reg) do
+    token   = get_session(conn, :token)
+    char_id = get_session(conn, :char_id)
+    status  = get_session(conn, :status)
+    character = CREST.get_character(token, char_id) |> prepare_character(status)
+
     # Extract the necessary fields out of what we have
     user = %{
       name: character[:name],
@@ -132,6 +117,19 @@ defmodule GoonAuth.RegistrationController do
     }
 
     process_registration(conn, user)
+  end
+
+  # Eligible characters have their status set to active
+  defp prepare_character(character, :eligible) do
+    Map.put(character, :pilotActive, 'TRUE')
+  end
+  # Applicants have their current corporation removed and the applicant group
+  # set. Applicants will not be marked as active users.
+  defp prepare_character(character, :can_apply) do
+    character
+    |> Map.delete(:corporation)
+    |> Map.put(:group, "applicants")
+    |> Map.put(:pilotActive, 'FALSE')
   end
 
   @doc "Finally write to LDAP and conclude registration"
@@ -147,30 +145,22 @@ defmodule GoonAuth.RegistrationController do
     |> redirect(to: "/")
   end
 
-  @doc "If a user is eligible, create a registration session and proceed"
-  def begin_registration(conn, status, token, character) do
-    # Store registration session
-    reg_id = UUID.uuid4()
-    now = :os.system_time(:seconds)
-    conn = put_session(conn, :reg_id, reg_id)
-    conn = put_session(conn, :name, character[:name])
-
-    case status do
-      :eligible  ->
-        character = Map.put(character, :pilotActive, 'TRUE')
-        :ets.insert(:registrations, {reg_id, token, character, now})
-        redirect(conn, to: "/register/form")
-      :can_apply ->
-        # If the user is not in TDB, remove their current corporation and set the
-        # applicants group.
-        character = character
-        |> Map.drop([:corporation])
-        |> Map.put(:group, "applicants")
-        |> Map.put(:pilotActive, 'FALSE')
-        :ets.insert(:registrations, {reg_id, token, character, now})
-        redirect(conn, to: "/register/apply")
-    end
+  @doc """
+  Redirects to the correct registration form after adding registration information
+  to the user's session.
+  """
+  def begin_registration(conn, status, token, name, char_id) do
+    conn
+    |> put_session(:status, status)
+    |> put_session(:token, token)
+    |> put_session(:name, name)
+    |> put_session(:char_id, char_id)
+    |> redirect(to: form_url(status))
   end
+
+  # Returns the correct registration form URL based on the registration status
+  defp form_url(:eligible), do: "/register/form"
+  defp form_url(:can_apply), do: "/register/apply"
 
   @doc """
   Sends away users that aren't eligible for signup or that have already
@@ -201,17 +191,5 @@ defmodule GoonAuth.RegistrationController do
     {:ok, conn} = LDAP.connect_admin
     :ok = LDAP.replace_token(conn, name, refresh_token)
     :eldap.close(conn)
-  end
-
-  # Private helper functions
-
-  # Retrieve the registration session and data or return :no_session
-  def get_registration_session(conn) do
-    reg_id = get_session(conn, :reg_id)
-    result = :ets.lookup(:registrations, reg_id)
-    case result do
-      []        -> :no_session
-      [session] -> {:ok, session}
-    end
   end
 end

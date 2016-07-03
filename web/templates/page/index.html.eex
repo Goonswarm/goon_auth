@@ -2,7 +2,7 @@
   <h2>GoonSwarm Services</h2>
   <p class="lead">OHGOD, it's those guys!</p>
   <p>
-    <a class="btn btn-lg btn-success" href="/register" role="button">Register account</a>
+    <a class="btn btn-lg btn-success" href="/register/start" role="button">Register account</a>
     <a class="btn btn-lg btn-warning" href="/change-password" role="button">Change password</a>
   </p>
 </div>

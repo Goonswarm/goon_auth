@@ -14,14 +14,10 @@ defmodule GoonAuth do
     # Set up secret key
     set_secret_key
 
-    # Set up ETS table used for registrations
-    :ets.new(:registrations, [:named_table, :public, read_concurrency: true])
-
     children = [
       # Start the endpoint when the application starts
       supervisor(GoonAuth.Endpoint, []),
-      # Start the "cleaner" process that removes old registrations
-      worker(GoonAuth.Cleaner, [60]),
+
       # Start the CREST synchronisatino process
       worker(GoonAuth.EVE.Sync, [15 * 60])
     ]

@@ -29,7 +29,7 @@ defmodule GoonAuth.Router do
     get "/register/form", RegistrationController, :registration_form
     get "/register/apply", RegistrationController, :application_form
     get "/register/crest-catch", RegistrationController, :catch_token
-    post "/register", RegistrationController, :validate_registration
+    post "/register", RegistrationController, :process_form
 
     # OAuth key upgrade route
     get "/key-upgrade", KeyController, :key_upgrade_page
