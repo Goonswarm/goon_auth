@@ -1,4 +1,4 @@
-FROM elixir
+FROM elixir:1.3.0
 MAINTAINER Vincent Ambo <tazjin@gmail.com>
 
 RUN mix do local.hex --force, local.rebar --force

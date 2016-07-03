@@ -28,17 +28,17 @@ defmodule GoonAuth.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.1.4"},
-     {:phoenix_html, "~> 2.4"},
+    [{:phoenix, "~> 1.2"},
+     {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:gettext, "~> 0.9"},
+     {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:httpoison, "~> 0.8.0"},
+     {:httpoison, "~> 0.9"},
      {:oauth2, "~> 0.5"},
-     {:uuid, "~> 1.1.3"},
-     {:exrm, "~> 1.0.4"},
+     {:uuid, "~> 1.1"},
+     {:exrm, "~> 1.0"},
      {:erlsom, "~> 1.4"},
-     {:xmlrpc, "~> 0.1"},
+     {:xmlrpc, "~> 1.0"},
     ]
   end
 end
