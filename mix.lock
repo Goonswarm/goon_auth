@@ -25,5 +25,6 @@
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
   "relx": {:hex, :relx, "3.20.0", "b515b8317d25b3a1508699294c3d1fa6dc0527851dffc87446661bce21a36710", [:rebar3], [{:providers, "1.6.0", [hex: :providers, optional: false]}, {:getopt, "0.8.2", [hex: :getopt, optional: false]}, {:erlware_commons, "0.21.0", [hex: :erlware_commons, optional: false]}, {:cf, "0.2.1", [hex: :cf, optional: false]}, {:bbmustache, "1.0.4", [hex: :bbmustache, optional: false]}]},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.0", "edee20847c42e379bf91261db474ffbe373f8acb56e9079acb6038d4e0bf414f", [:rebar, :make], []},
+  "sweet_xml": {:hex, :sweet_xml, "0.6.1", "a56f235171f35a32807ce44798dedc748ce249fca574674fecd29c1321cab0de", [:mix], []},
   "uuid": {:hex, :uuid, "1.1.4", "36c7734e4c8e357f2f67ba57fb61799d60c20a7f817b104896cca64b857e3686", [:mix], []},
   "xmlrpc": {:hex, :xmlrpc, "1.0.0", "adb28204cf27b7f829ad2fa4de9f21bc6c0287dbaab6972841f018bc05b7f4f6", [:mix], []}}

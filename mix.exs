@@ -18,7 +18,8 @@ defmodule GoonAuth.Mixfile do
   def application do
     [mod: {GoonAuth, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :httpoison, :oauth2, :uuid, :eldap, :xmlrpc, :erlsom]]
+                    :httpoison, :oauth2, :uuid, :eldap, :xmlrpc, :erlsom,
+                    :sweet_xml]]
   end
 
   # Specifies which paths to compile per environment.
@@ -38,6 +39,7 @@ defmodule GoonAuth.Mixfile do
      {:uuid, "~> 1.1"},
      {:erlsom, "~> 1.4"},
      {:xmlrpc, "~> 1.0"},
+     {:sweet_xml, "~> 0.6.1"}
     ]
   end
 end
