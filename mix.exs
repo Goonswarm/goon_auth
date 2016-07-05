@@ -17,9 +17,9 @@ defmodule GoonAuth.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {GoonAuth, []},
-     applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
-                    :httpoison, :oauth2, :uuid, :eldap, :xmlrpc, :erlsom,
-                    :sweet_xml]]
+     applications: [:cowboy, :ecto, :eldap, :erlsom, :gettext, :httpoison,
+                    :logger, :oauth2, :phoenix, :phoenix_html, :sweet_xml,
+                    :timex, :xmlrpc]]
   end
 
   # Specifies which paths to compile per environment.
@@ -29,18 +29,19 @@ defmodule GoonAuth.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2"},
-     {:phoenix_html, "~> 2.6"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:ecto, "~> 2.0"},
-     {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
-     {:httpoison, "~> 0.9"},
-     {:oauth2, "~> 0.5"},
-     {:uuid, "~> 1.1"},
-     {:erlsom, "~> 1.4"},
-     {:xmlrpc, "~> 1.0"},
-     {:sweet_xml, "~> 0.6.1"}
+    [
+      {:cowboy, "~> 1.0"},
+      {:ecto, "~> 2.0"},
+      {:erlsom, "~> 1.4"},
+      {:gettext, "~> 0.11"},
+      {:httpoison, "~> 0.9"},
+      {:oauth2, "~> 0.5"},
+      {:phoenix, "~> 1.2"},
+      {:phoenix_html, "~> 2.6"},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:sweet_xml, "~> 0.6.1"},
+      {:timex, "~> 2.2"},
+      {:xmlrpc, "~> 1.0"},
     ]
   end
 end
