@@ -12,15 +12,24 @@ defmodule GoonAuth.EVE.CREST do
     parse_id(decoded["character"]["href"])
   end
 
-  @doc "Retrieve a character, including nested information such as the corporation"
+  @doc """
+  Retrieve a character from CREST and return it in a format compatible with LDAP
+  user changesets.
+  The format contains nested information such as the corporation.
+  """
+  def get_character(token, character_id \\ nil)
+  def get_character(token, nil) do
+    get_character(token, get_character_id(token))
+  end
   def get_character(token, character_id) do
     character = get!(token, "/characters/#{character_id}/")
     corporation = character["corporation"]["name"]
     character_id = character["id_str"]
     %{
-      id: character_id,
-      name: character["name"],
-      corporation: corporation
+      cn: character["name"],
+      sn: sanitize_name(character["name"]),
+      corporation: corporation,
+      refreshToken: token.refresh_token,
     }
   end
 
@@ -28,6 +37,14 @@ defmodule GoonAuth.EVE.CREST do
   # Example: /corporations/1234567/ -> 1234567
   defp parse_id(url) do
     Regex.run(~r/([0-9]+)\//, url, capture: :all_but_first) |> hd
+  end
+
+  @doc "Sanitize character names for use as usernames in bad external services."
+  def sanitize_name(name) do
+    name
+    |> String.downcase
+    |> String.replace(" ", "_")
+    |> String.replace("'", "")
   end
 
   @doc "Helper function that fetches and decodes data from the API"

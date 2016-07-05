@@ -59,12 +59,4 @@ defmodule GoonAuth.LDAP do
         :ok = :eldap.close(conn)
     end
   end
-
-  @doc "Sanitize usernames for use in bad external services"
-  def sanitize_name(name) do
-    name
-    |> String.downcase
-    |> String.replace(" ", "_")
-    |> String.replace("'", "")
-  end
 end

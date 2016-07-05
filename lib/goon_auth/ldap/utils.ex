@@ -80,7 +80,6 @@ defmodule GoonAuth.LDAP.Utils do
     end
   end
 
-
   @doc """
   Transforms LDAP attributes into easier to handle Elixir values.
 
@@ -93,8 +92,6 @@ defmodule GoonAuth.LDAP.Utils do
     value =
       case attr do
         []             -> nil
-        ['TRUE' | []]  -> true
-        ['FALSE' | []] -> false
         [val | []]     -> List.to_string(val)
         _ -> Enum.map(attr, &(List.to_string &1))
       end
