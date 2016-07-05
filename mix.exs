@@ -31,6 +31,7 @@ defmodule GoonAuth.Mixfile do
     [{:phoenix, "~> 1.2"},
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:ecto, "~> 2.0"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.9"},
