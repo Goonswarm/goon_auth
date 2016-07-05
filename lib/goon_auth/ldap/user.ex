@@ -105,9 +105,12 @@ defmodule GoonAuth.LDAP.User do
 
   # Group modifications will cause changes in all groups that are added or removed.
   defp to_modification(user, {:groups, value}) do
-    to_add = :lists.subtract(value, user.groups)
-    to_remove = :lists.subtract(user.groups, value)
-    user_dn = Utils.dn(user.cn, :user)
+    import MapSet
+    current   = new(user.groups)
+    desired   = new(value)
+    to_add    = difference(desired, current) |> to_list
+    to_remove = difference(current, desired) |> to_list
+    user_dn   = Utils.dn(user.cn, :user)
 
     add_changes = Enum.map(to_add, fn(group) ->
       group_dn = Utils.dn(group, :group)
