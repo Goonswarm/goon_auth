@@ -14,25 +14,6 @@ defmodule GoonAuth.LDAP do
   """
   import GoonAuth.LDAP.Utils
 
-  @doc "Finds the groups or corporations a user is a member of"
-  def find_groups(conn, username, type) do
-    user_dn = dn(username, :user)
-    search = [
-      filter: :eldap.extensibleMatch(user_dn, [type: 'member',
-                                               matchingRule: 'distinguishedNameMatch']),
-      base: base_dn(type),
-      scope: :eldap.singleLevel,
-      attributes: ['cn', 'description']
-    ]
-
-    result = :eldap.search(conn, search)
-    case result do
-      {:ok, {:eldap_search_result, groups, _ref}} ->
-        groups = Enum.map(groups, &(parse_object &1))
-        {:ok, groups}
-    end
-  end
-
   @doc "Connects to LDAP and returns socket"
   def connect do
     conf = Application.get_env(:goon_auth, :ldap)

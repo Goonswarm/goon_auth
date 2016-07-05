@@ -61,6 +61,25 @@ defmodule GoonAuth.LDAP.Utils do
     end
   end
 
+  @doc "Finds the groups or corporations a user is a member of"
+  def find_groups(conn, username, type) do
+    user_dn = dn(username, :user)
+    search = [
+      filter: :eldap.extensibleMatch(user_dn, [type: 'member',
+                                               matchingRule: 'distinguishedNameMatch']),
+      base: base_dn(type),
+      scope: :eldap.singleLevel,
+      attributes: ['cn', 'description']
+    ]
+
+    result = :eldap.search(conn, search)
+    case result do
+      {:ok, {:eldap_search_result, groups, _ref}} ->
+        groups = Enum.map(groups, &(parse_object &1)["cn"])
+        {:ok, groups}
+    end
+  end
+
 
   @doc """
   Transforms LDAP attributes into easier to handle Elixir values.

@@ -32,8 +32,8 @@ defmodule GoonAuth.LDAP.User do
   # User registration involves several changesets as data is retrieved from
   # multiple sources (EVE API, registration form and computed values)
 
-  @doc "Changeset for data from registration form"
-  def registration_form(user, params) do
+  @doc "Changeset for data from registration or password reset form"
+  def user_form(user, params) do
     user
     |> cast(params, [:password, :mail])
     |> validate_confirmation(:password, required: true)
@@ -55,14 +55,6 @@ defmodule GoonAuth.LDAP.User do
     |> validate_pilot_status
   end
 
-  @doc "Changeset for password update form"
-  def password_change(user, params) do
-    user
-    |> cast(params, [:password])
-    |> validate_length(:password, min: 8)
-    |> validate_confirmation(:password, required: true)
-  end
-
   # Validates the pilot status field (pilotActive)
   defp validate_pilot_status(changeset) do
     changeset
@@ -80,8 +72,8 @@ defmodule GoonAuth.LDAP.User do
       modifications = changeset.changes
       |> Enum.map(&(to_modification(changeset.data, &1)))
       |> List.flatten
-      # Group changes by DN
-      |> Enum.group_by(fn({dn, _}) -> dn end)
+      # Group changes by DN and only pass on the changes
+      |> Enum.group_by(fn({dn, _}) -> dn end, fn({_, mod}) -> mod end)
       {:ok, modifications}
     else
       {:error, changeset.errors}
@@ -125,7 +117,7 @@ defmodule GoonAuth.LDAP.User do
 
     remove_changes = Enum.map(to_remove, fn(group) ->
       group_dn = Utils.dn(group, :group)
-      change = :eldap.mod_add('member', [user_dn])
+      change = :eldap.mod_delete('member', [user_dn])
       {group_dn, change}
     end)
     [add_changes, remove_changes]
@@ -134,7 +126,8 @@ defmodule GoonAuth.LDAP.User do
   # Other modifications occur directly on the user DN
   defp to_modification(user, {key, value}) do
     user_dn = Utils.dn(user.cn, :user)
-    change = :eldap.mod_replace(Atom.to_charlist(key), String.to_charlist(value))
+    change = :eldap.mod_replace(Atom.to_charlist(key),
+                                [String.to_charlist(value)])
     {user_dn, change}
   end
 
@@ -163,6 +156,18 @@ defmodule GoonAuth.LDAP.User do
 
   @doc "Retrieves a user from LDAP"
   def retrieve(conn, username) do
+    {:ok, user} = Utils.retrieve(conn, username, :user)
+    {:ok, groups} = Utils.find_groups(conn, username, :group)
+    {:ok, corp} = Utils.find_groups(conn, username, :corp)
 
+    {:ok, %GoonAuth.LDAP.User{
+        cn: user["cn"],
+        sn: user["sn"],
+        mail: user["mail"],
+        refreshToken: user["refreshToken"],
+        pilotActive: user["pilotActive"],
+        groups: groups,
+        corporation: List.first(corp),
+    }}
   end
 end
