@@ -29,12 +29,4 @@ defmodule GoonAuth.KeyController do
     oauth_url = Auth.authorize_url!(stasi_scopes())
     render(conn, "upgrade_key.html", oauth_url: oauth_url)
   end
-
-  # fucking around with XML API
-  def xml_get(token, access_type, uri, input \\ %{}) do
-    url = "https://api.eveonline.com#{uri}"
-    params = 
-      Map.merge(input, %{accessToken: token.access_token, accessType: access_type})
-    HTTPoison.get!(url, [], params: params)
-  end
 end
