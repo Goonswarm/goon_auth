@@ -5,6 +5,7 @@ defmodule GoonAuth.EVE.API do
   The functions in this module are intended to retrieve data from CREST and
   combine/enrich it with other information we need.
   """
+  import SweetXml
 
   @doc "Retrieve ID of a character from the authentication token"
   def get_character_id(token) do
@@ -24,13 +25,38 @@ defmodule GoonAuth.EVE.API do
   def get_character(token, character_id) do
     character = get!(token, "/characters/#{character_id}/")
     corporation = character["corporation"]["name"]
-    character_id = character["id_str"]
+    pilotActive =
+      case get_account_status(token) do
+        :active -> 'TRUE'
+        :expired -> 'EXPIRED'
+      end
+
     %{
       cn: character["name"],
       sn: sanitize_name(character["name"]),
       corporation: corporation,
       refreshToken: token.refresh_token,
+      pilotActive: pilotActive,
     }
+  end
+
+  @doc """
+  Returns either :active for subscribed accounts or :expired for accounts that
+  have been unsubscribed for longer than the grace period (1 week).
+  """
+  def get_account_status(token) do
+    xml_get(token, "character", "/account/AccountStatus.xml.aspx").body
+    |> xpath(~x"//result/paidUntil/text()"s)
+    |> Timex.parse!("%Y-%m-%d %H:%M:%S", :strftime)
+    |> fn(date) ->
+      now = Timex.DateTime.now
+      diff = Timex.diff(now, date, :days)
+      if diff > 7 do
+        :expired
+      else
+        :active
+      end
+    end.()
   end
 
   # Helper function to extract IDs from CREST URLs
@@ -54,5 +80,19 @@ defmodule GoonAuth.EVE.API do
     # CCP API can be slow, lets use a longer timeout (15 seconds)
     response = OAuth2.AccessToken.get!(token, url, [], timeout: 15000)
     response.body |> decode!
+  end
+
+  @doc """
+  Get a resource from the XML API. Provided token should be a standard OAuth
+  access token, access type should be set to "corporation" or "character"
+  depending on the access type.
+
+  Refer to XML API documentation for more information.
+  """
+  def xml_get(token, access_type, uri, input \\ %{}) do
+    url = "https://api.eveonline.com#{uri}"
+    params =
+      Map.merge(input, %{accessToken: token.access_token, accessType: access_type})
+    HTTPoison.get!(url, [], params: params)
   end
 end
