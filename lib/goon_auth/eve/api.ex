@@ -1,6 +1,6 @@
-defmodule GoonAuth.EVE.CREST do
+defmodule GoonAuth.EVE.API do
   @moduledoc """
-  Convenience wrappers for using the CREST API.
+  Convenience wrappers for using the CREST and XML APIs.
 
   The functions in this module are intended to retrieve data from CREST and
   combine/enrich it with other information we need.
