@@ -53,7 +53,7 @@ defmodule GoonAuth.EVE.Auth do
   Retrieve a new access token based on the refresh token and check for potential
   error messages from the SSO service.
   """
-  def refresh_token!(refresh_token) do
+  def refresh_token(refresh_token) do
     token = OAuth2.AccessToken.new(%{"refresh_token" => refresh_token}, client())
     {:ok, refreshed} = OAuth2.AccessToken.refresh(token)
 

@@ -9,9 +9,10 @@ defmodule GoonAuth.EVE.Sync do
   """
   use GenServer
   require Logger
-  alias GoonAuth.EVE.CREST
+  alias GoonAuth.EVE.API
   alias GoonAuth.LDAP
   import GoonAuth.LDAP
+  import GoonAuth.LDAP.Utils
   import GoonAuth.EVE.Auth, only: [refresh_token!: 1]
 
   # GenServer setup
@@ -113,58 +114,23 @@ defmodule GoonAuth.EVE.Sync do
     end)
   end
 
-  @doc """
-  Retrieves an active user from CREST and validates the corporation.
+  def sync_user(conn, user) do
+    {:ok, token} = Auth.refresh_token(user.refreshToken)
+    {:ok, character} = API.get_character(token)
 
-  If the corporation record is found not to match the result from CREST, the
-  user will be deactivated and removed from the corporation in LDAP.
-
-  If the user has moved to a different eligible corporation they will be
-  reactivated on the next cycle.
-  """
-  def sync_active_user(conn, user, [corp]) do
-    character = crest_fetch(user)
-
-    # If the corporations don't match, deactivate the user and remove him from
-    # corp.
-    # If the user only changed his corporation, the account will be activated
-    # again in the next cycle with the new corporation.
-    if character[:corporation] != corp["cn"] do
-      Logger.info("Deactivating #{user["cn"]} (CREST corp: #{character[:corporation]})")
-      LDAP.remove_member(conn, corp["dn"], user["dn"])
-      LDAP.add_member(conn, LDAP.dn("applicants", :group), user["dn"])
-      LDAP.set_user_status(conn, user["cn"], :inactive)
-    end
+    corporation = check_corp(conn, character[:corporation])
+    changes = %{
+      corporation: corporation,
+      pilotActive: check_status(character),
+    }
   end
 
-  @doc """
-  Retrieves an inactive user from CREST and validates the corporation.
-
-  If the user is found to be in an eligible corporation, their LDAP account is
-  activated and they will be added to the appropriate LDAP group.
-  """
-  def sync_inactive_user(conn, user) do
-    character = crest_fetch(user)
-
-    result = LDAP.retrieve(conn, character[:corporation], :corp)
-
-    case result do
-      # User still ineligible
-      :not_found -> :ok
-      # User became eligible
-      {:ok, corp} ->
-          Logger.info("Activating #{user["cn"]} (Corp: #{corp["cn"]})")
-          LDAP.add_member(conn, corp["dn"], user["dn"])
-          LDAP.remove_member(conn, LDAP.dn("applicants", :group), user["dn"])
-          LDAP.set_user_status(conn, user["cn"], :active)
+  # Checks whether a corporation exists in LDAP and returns its name if so,
+  # and nil otherwise.
+  defp check_corp(conn, corp) do
+    case LDAP.retrieve(conn, corp, :corp) do
+      :not_found -> nil
+      {:ok, _}   -> corp
     end
-  end
-
-  # Helper function to fetch the character from CREST
-  defp crest_fetch(user) do
-    # Fetch character from CREST again
-    {:ok, token} = refresh_token!(user["refreshToken"])
-    character_id = CREST.get_character_id(token)
-    CREST.get_character(token, character_id)
   end
 end

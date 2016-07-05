@@ -6,14 +6,14 @@ defmodule GoonAuth.Utils do
   and EVE's CREST API.
   """
   alias GoonAuth.EVE.Auth
-  alias GoonAuth.LDAP
+  alias GoonAuth.LDAP.Utils
 
   @doc """
   Retrieves a user's stored refresh token from LDAP and uses it to fetch a new
   authentication token from the EVE SSO.
   """
   def get_user_token(conn, username) do
-    case LDAP.retrieve(conn, username, :user) do
+    case Utils.retrieve(conn, username, :user) do
       :not_found  -> :not_found
       {:ok, user} ->
         Auth.refresh_token!(user["refreshToken"])
