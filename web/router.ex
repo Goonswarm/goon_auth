@@ -25,7 +25,6 @@ defmodule GoonAuth.Router do
     get "/logout", LoginController, :handle_logout
 
     # Registration routes
-    get "/register", RegistrationController, :register
     get "/register/start", RegistrationController, :start
     get "/register/form", RegistrationController, :registration_form
     get "/register/apply", RegistrationController, :application_form
