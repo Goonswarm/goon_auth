@@ -13,7 +13,12 @@ defmodule GoonAuth.AuthController do
 
   # Simply respond with a successful status, if the connection gets this far the
   # authentication and authorization has already been performed.
+  # The username is returned in a header which makes it available to nginx after
+  # an authentication request is completed.
   def handle_auth(conn, _) do
-    text(conn, "Access granted.")
+    user = get_session(conn, :user)
+    conn
+    |> put_resp_header("X-Auth-User", user)
+    |> text("Access granted")
   end
 end
