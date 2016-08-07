@@ -1,10 +1,8 @@
 <div class="jumbotron">
-  <h2>Register here</h2>
-  <p>Welcome to the GoonSwarm registration page. In order to qualify for an account,
-    you must have a character that is currently a member of [OHGOD].
+  <h2>Welcome to GoonSwarm</h2>
+  <p>Here you can sign up for a services account (if you have a character that is currently in [OHGOD] or gain access to our application forum.</p>
 
-    Press the button below to authenticate with your EVE Online account and pick the
-    character you want to be identified with.
-  </p>
+  <p>Press the button below to authenticate with your EVE Online account and pick the
+    character you want to be identified with.</p>
   <a href="<%= @oauth_url %>"><img src="/images/eve_sso_white.png" alt="EVE SSO"></a>
 </div>
