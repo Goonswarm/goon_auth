@@ -53,7 +53,9 @@ defmodule GoonAuth.Auth do
       conn
     else
       Logger.info("Denied access to #{conn.request_path} for user #{user}")
-      respond_unauthorized(conn, opts[:redirect]) |> halt
+      conn
+      |> respond_unauthorized(opts[:redirect])
+      |> halt
     end
   end
 

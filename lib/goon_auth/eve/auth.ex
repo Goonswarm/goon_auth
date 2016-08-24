@@ -38,12 +38,13 @@ defmodule GoonAuth.EVE.Auth do
   end
 
   # Strategy callbacks
-  def authorize_url(client, params) do
-    OAuth2.Strategy.AuthCode.authorize_url(client, params)
+  def authorize_url(oauth_client, params) do
+    oauth_client
+    |> OAuth2.Strategy.AuthCode.authorize_url(params)
   end
 
-  def get_token(client, params, headers) do
-    client
+  def get_token(oauth_client, params, headers) do
+    oauth_client
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end

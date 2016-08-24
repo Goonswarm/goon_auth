@@ -103,7 +103,9 @@ defmodule GoonAuth.RegistrationController do
     token   = get_session(conn, :token)
     char_id = get_session(conn, :char_id)
     status  = get_session(conn, :status)
-    character = CREST.get_character(token, char_id) |> prepare_character(status)
+    character = token
+    |> CREST.get_character(char_id)
+    |> prepare_character(status)
 
     # Extract the necessary fields out of what we have
     user = %{

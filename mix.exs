@@ -38,6 +38,7 @@ defmodule GoonAuth.Mixfile do
      {:uuid, "~> 1.1"},
      {:erlsom, "~> 1.4"},
      {:xmlrpc, "~> 1.0"},
+     {:credo, "~> 0.4", only: [:dev, :test]}
     ]
   end
 end

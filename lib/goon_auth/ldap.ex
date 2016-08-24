@@ -24,10 +24,10 @@ defmodule GoonAuth.LDAP do
 
     simple_name = sanitize_name(name)
 
-    objectClasses = ['organizationalPerson', 'goonPilot']
+    object_classes = ['organizationalPerson', 'goonPilot']
 
     entry = [
-      {'objectClass', objectClasses},
+      {'objectClass', object_classes},
       {'cn', [cn]},
       {'sn', [simple_name]}, # Yes, I know that sn stands for surname. :getout:
       {'mail', [mail]},
@@ -257,7 +257,8 @@ defmodule GoonAuth.LDAP do
   The result is a normal Elixir/Erlang map with binary keys and values.
   """
   def parse_object({:eldap_entry, dn, object}) do
-    Enum.map(object, fn({k, v}) -> get_attr(k, v) end)
+    object
+    |> Enum.map(fn({k, v}) -> get_attr(k, v) end)
     |> :maps.from_list
     |> Map.put("dn", dn)
   end

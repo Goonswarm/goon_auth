@@ -19,7 +19,8 @@ defmodule GoonAuth.LoginController do
 
   @doc "Destroys a users session"
   def handle_logout(conn, _params) do
-    clear_session(conn)
+    conn
+    |> clear_session
     |> redirect(to: "/")
   end
 
