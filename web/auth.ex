@@ -29,10 +29,10 @@ defmodule GoonAuth.Auth do
   Checks whether the specified user is currently set as active in LDAP.
 
   Accepts a `:group` option that sets the LDAP group to check for. If no option
-  is set, it will check the X-Access-Group HTTP header which can be set by nginx
+  is set, it will check the X-Access-Groups HTTP header which can be set by nginx
   for proxy-authentication requests.
 
-  In addition a `:banned` option or `X-Banned-Group` header can be set to
+  In addition a `:banned` option or `X-Banned-Groups` header can be set to
   disallow access specifically for members of a group.
   """
   def authorize(conn, opts) do
@@ -62,36 +62,46 @@ defmodule GoonAuth.Auth do
   defp check_access(groups, conn, opts) do
     # Check whether the user is in the required access group
     has_access? =
-      case required_group(conn, opts) do
-        []      -> true
-        [group] -> Enum.any?(groups, &(&1["cn"] == group))
+      case required_groups(conn, opts) do
+        []         -> true
+        req_groups -> Enum.any?(groups, &(&1["cn"] in req_groups))
       end
 
-    # Check whether the user is in a banned group
+    # Check whether the user is in any banned group
     not_banned? =
-      case banned_group(conn, opts) do
-        []      -> true
-        [group] -> Enum.all?(groups, &(&1["cn"] != group))
+      case banned_groups(conn, opts) do
+        []         -> true
+        ban_groups -> Enum.all?(groups, &(not &1["cn"] in ban_groups))
       end
 
     has_access? and not_banned?
   end
 
-  # Checks the :group option and X-Access-Group header to figure out which
-  # access group is necessary.
-  defp required_group(conn, opts) do
-    case opts[:group] do
-      nil   -> get_req_header(conn, "x-access-group")
-      group -> [group]
+  # Checks the :group option and X-Access-Groups header to figure out which
+  # access groups are necessary.
+  # Multiple groups in the HTTP header can be separated by commas.
+  # If the user is in any of the groups, he will be granted access.
+  defp required_groups(conn, opts) do
+    case opts[:groups] do
+      nil ->
+        conn
+        |> get_req_header("x-access-groups")
+        |> Enum.flat_map(&(String.split(&1, ",")))
+      groups -> groups
     end
   end
 
-  # Checks the :banned option and X-Banned-Group header to figure out if any
+  # Checks the :banned option and X-Banned-Groups header to figure out if any
   # groups are banned from access.
-  defp banned_group(conn, opts) do
+  # Multiple groups in the HTTP header can be separated by commas.
+  # If the user is in any of the groups, she will be denied access.
+  defp banned_groups(conn, opts) do
     case opts[:banned] do
-      nil   -> get_req_header(conn, "x-banned-group")
-      group -> [group]
+      nil ->
+        conn
+        |> get_req_header("x-banned-groups")
+        |> Enum.flat_map(&(String.split(&1, ",")))
+      groups -> groups
     end
   end
 

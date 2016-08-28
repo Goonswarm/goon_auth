@@ -33,7 +33,7 @@ defmodule GoonAuth.KeyController do
   # fucking around with XML API
   def xml_get(token, access_type, uri, input \\ %{}) do
     url = "https://api.eveonline.com#{uri}"
-    params = 
+    params =
       Map.merge(input, %{accessToken: token.access_token, accessType: access_type})
     HTTPoison.get!(url, [], params: params)
   end
