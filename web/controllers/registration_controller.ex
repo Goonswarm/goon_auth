@@ -123,7 +123,7 @@ defmodule GoonAuth.RegistrationController do
 
   # Eligible characters have their status set to active
   defp prepare_character(character, :eligible) do
-    Map.put(character, :pilotActive, 'TRUE')
+    Map.put(character, :pilotActive, 'true')
   end
   # Applicants have their current corporation removed and the applicant group
   # set. Applicants will not be marked as active users.
@@ -131,7 +131,7 @@ defmodule GoonAuth.RegistrationController do
     character
     |> Map.delete(:corporation)
     |> Map.put(:group, "applicants")
-    |> Map.put(:pilotActive, 'FALSE')
+    |> Map.put(:pilotActive, 'false')
   end
 
   @doc "Finally write to LDAP and conclude registration"

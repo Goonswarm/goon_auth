@@ -79,8 +79,8 @@ defmodule GoonAuth.EVE.Sync do
   def get_users_by_status(conn, status) do
     active =
       case status do
-        :active -> 'TRUE'
-        :inactive -> 'FALSE'
+        :active   -> 'true'
+        :inactive -> 'false'
       end
 
     search = [
