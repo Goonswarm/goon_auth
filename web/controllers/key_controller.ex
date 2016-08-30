@@ -15,7 +15,7 @@ defmodule GoonAuth.KeyController do
      "characterMarketOrdersRead", "characterMedalsRead",
      "characterNavigationWrite", "characterNotificationsRead",
      "characterOpportunitiesRead", "characterResearchRead", "characterSkillsRead",
-     "characterStatsRead", "characterWalletRead", "corporationAssetRead",
+     "characterStatsRead", "characterWalletRead", "corporationAssetsRead",
      "corporationBookmarksRead", "corporationContractsRead",
      "corporationFactionalWarfareRead", "corporationIndustryJobsRead",
      "corporationKillsRead", "corporationMarketOrdersRead", "corporationMedalsRead",
