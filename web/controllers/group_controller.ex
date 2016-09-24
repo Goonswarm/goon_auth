@@ -10,9 +10,10 @@ defmodule GoonAuth.GroupController do
   plug :authenticate
 
   def group_list(conn, _params) do
-    user = get_session(conn, :user)
-    {:ok, ldap_conn} = LDAP.connect
-    {:ok, groups} = LDAP.find_groups(ldap_conn, user, :group)
-    render(conn, "groups.html", groups: groups)
+    user                  = get_session(conn, :user)
+    {:ok, ldap_conn}      = LDAP.connect
+    {:ok, groups}         = LDAP.find_groups(ldap_conn, user, :group)
+    {:ok, managed_groups} = LDAP.find_groups(ldap_conn, user, :group, 'owner')
+    render(conn, "groups.html", groups: groups, managed_groups: managed_groups)
   end
 end

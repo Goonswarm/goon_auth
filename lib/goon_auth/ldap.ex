@@ -100,11 +100,14 @@ defmodule GoonAuth.LDAP do
   end
 
   @doc "Finds the groups or corporations a user is a member of"
-  def find_groups(conn, username, type) do
+  def find_groups(conn, username, type, member_type \\ 'member') do
     user_dn = dn(username, :user)
+
     search = [
-      filter: :eldap.extensibleMatch(user_dn, [type: 'member',
-                                               matchingRule: 'distinguishedNameMatch']),
+      filter: :eldap.extensibleMatch(user_dn,
+        [type: member_type,
+         matchingRule: 'distinguishedNameMatch']),
+
       base: base_dn(type),
       scope: :eldap.singleLevel,
       attributes: ['cn', 'description']
