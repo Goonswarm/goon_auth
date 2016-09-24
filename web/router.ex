@@ -42,6 +42,9 @@ defmodule GoonAuth.Router do
     get "/ping", PingController, :ping_form
     post "/ping", PingController, :handle_ping
 
+    # Group management routes
+    get "/groups", GroupController, :group_list
+
     # nginx auth handler route
     get "/auth", AuthController, :handle_auth
   end
