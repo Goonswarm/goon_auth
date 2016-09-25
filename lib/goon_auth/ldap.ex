@@ -74,12 +74,18 @@ defmodule GoonAuth.LDAP do
 
   @doc "Retrieves a user, corporation or group from LDAP"
   @spec retrieve(pid, binary, :user | :corp | :group) :: {:ok, term} | :not_found
-  def retrieve(conn, name, type) do
+  def retrieve(conn, name, type, dn \\ nil) do
+    base_dn =
+      case dn do
+        nil -> dn(name, type)
+        _   -> dn
+      end
+
     # Searching for the base object on a distinguished name gives us
     # exactly that object, i.e. the user or corporation.
     search = [
       filter: :eldap.equalityMatch('objectClass', object_class(type)),
-      base: dn(name, type),
+      base: base_dn,
       scope: :eldap.baseObject
     ]
 
