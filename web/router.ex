@@ -44,6 +44,7 @@ defmodule GoonAuth.Router do
 
     # Group management routes
     get "/groups", GroupController, :group_list
+    get "/group/:name", GroupController, :group_view
 
     # nginx auth handler route
     get "/auth", AuthController, :handle_auth
