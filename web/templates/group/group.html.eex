@@ -16,7 +16,7 @@
       </div>
       <div class="panel-body">
         <ul class="list-group">
-          <%= for owner <- @group["owner"] do %>
+          <%= for owner <- listify_users(@group["owner"]) do %>
             <li class="list-group-item"><%= owner %></li>
           <% end %>
         </ul>
@@ -25,7 +25,7 @@
   </div>
   <div class="col-md-7">
     <ul class="list-group">
-      <%= for member <- @group["member"] do %>
+      <%= for member <- listify_users(@group["member"]) do %>
         <li class="list-group-item">
           <h4 class="list-group-item-heading"><%= member %></h4>
           <p class="list-group-item-text">Whatever</p>
