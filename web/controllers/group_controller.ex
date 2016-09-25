@@ -36,6 +36,10 @@ defmodule GoonAuth.GroupController do
     {:ok, group} = LDAP.retrieve(ldap_conn, name, :group)
 
     if has_access?(group["owner"], user) do
+      members = get_members(ldap_conn, group["member"])
+      owners  = get_members(ldap_conn, group["owner"])
+      group   = Map.merge(group, %{members: members, owners: owners})
+      IO.inspect group
       render(conn, "group.html", group: group)
     else
       Logger.warn("User #{user} attempted to view group #{name}!")
@@ -54,5 +58,14 @@ defmodule GoonAuth.GroupController do
   defp has_access?(owner, user) when is_binary(owner) do
     dn_fragment = "cn=#{user},"
     String.contains?(owner, dn_fragment)
+  end
+
+  # Fetches detailed information about group members from LDAP
+  defp get_members(ldap, members) do
+    members
+    |> Enum.map(fn(member) ->
+      {:ok, member} = LDAP.retrieve(ldap, member, :user, member)
+      member
+    end)
   end
 end
