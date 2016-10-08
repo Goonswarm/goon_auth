@@ -19,7 +19,7 @@ defmodule GoonAuth do
       supervisor(GoonAuth.Endpoint, []),
 
       # Start the CREST synchronisatino process
-      worker(GoonAuth.EVE.Sync, [15 * 60])
+      # worker(GoonAuth.EVE.Sync, [15 * 60])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
